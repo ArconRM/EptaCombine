@@ -1,3 +1,4 @@
+using Common.Entities;
 using Common.Entities.Enums;
 using FileConverter.Repository.Interfaces;
 using FileConverter.Service.Interfaces;
@@ -19,8 +20,8 @@ public class VideoFileConversionService: IVideoFileConversionService
         FileFormat outFormat,
         CancellationToken token)
     {
-        string inFormatString = inFormat.ToString().ToLower();
-        string outFormatString = outFormat.ToString().ToLower();
+        string inFormatString = FileFormatExtensions.GetStringExtension(inFormat);
+        string outFormatString = FileFormatExtensions.GetStringExtension(outFormat);
         return await _videoFileConversionRepository.ConvertVideoAsync(
             inputStream,
             inFormatString,

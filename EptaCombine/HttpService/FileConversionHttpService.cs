@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using Common.Entities;
 using Common.Entities.Enums;
 using FileConverter.Service.Interfaces;
 
@@ -23,7 +24,7 @@ public class FileConversionHttpService: IFileConversionService
 
         var fileContent = new StreamContent(inputStream);
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-        content.Add(fileContent, "inputFile", $"input.{inFormat.ToString().ToLower()}");
+        content.Add(fileContent, "inputFile", $"input.{FileFormatExtensions.GetStringExtension(inFormat)}");
         
         var url = $"Convert?inputFormat={(int)inFormat}&outFormat={(int)outFormat}";
         var response = await _httpClient.PostAsync(url, content, token);

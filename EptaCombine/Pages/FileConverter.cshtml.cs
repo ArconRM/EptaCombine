@@ -32,7 +32,7 @@ public class FileConverter : PageModel
             return BadRequest("No file provided");
         }
        
-        FileFormat? inputFormat = SupportedFormats.GetFormatFromFileName(uploadFile.FileName);
+        FileFormat? inputFormat = FileFormatExtensions.GetFormatFromFileName(uploadFile.FileName);
         if (inputFormat == null)
         {
             _logger.LogError($"{uploadFile.FileName} extension is not supported");
@@ -66,11 +66,12 @@ public class FileConverter : PageModel
         try
         {
             await using Stream inputStream = uploadFile.OpenReadStream();
-            FileFormat inputFormat = SupportedFormats.GetFormatFromFileName(uploadFile.FileName).Value;
-            FileFormat outputFormatDecoded = SupportedFormats.GetFormatFromFileName(outputFormat).Value;
+            FileFormat inputFormat = FileFormatExtensions.GetFormatFromFileName(uploadFile.FileName)!.Value;
+            FileFormat outputFormatDecoded = FileFormatExtensions.GetFormatFromFileName(outputFormat)!.Value;
+            outputFormat = FileFormatExtensions.GetStringExtension(outputFormatDecoded);
             
             Stream outputStream = await _fileConversionService.ConvertFileAsync(inputStream, inputFormat, outputFormatDecoded, CancellationToken.None);
-            string convertedFileName = Path.GetFileNameWithoutExtension(uploadFile.FileName) + $".{outputFormat.ToLower()}";
+            string convertedFileName = Path.GetFileNameWithoutExtension(uploadFile.FileName) + $".{outputFormat}";
             return File(outputStream, "application/octet-stream", convertedFileName);
         }
         catch (Exception e)
