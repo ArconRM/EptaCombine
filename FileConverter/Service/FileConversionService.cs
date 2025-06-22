@@ -8,12 +8,15 @@ public class FileConversionService : IFileConversionService
 {
     private readonly IImageFileConversionService _imageFileConversionService;
     private readonly IVideoFileConversionService _videoFileConversionService;
+    private readonly IAudioFileConversionService _audioFileConversionService;
     public FileConversionService(
         IImageFileConversionService imageFileConversionService,
-        IVideoFileConversionService videoFileConversionService)
+        IVideoFileConversionService videoFileConversionService,
+        IAudioFileConversionService audioFileConversionService)
     {
         _imageFileConversionService = imageFileConversionService;
         _videoFileConversionService = videoFileConversionService;
+        _audioFileConversionService = audioFileConversionService;
     }
 
     public async Task<Stream> ConvertFileAsync(
@@ -41,6 +44,7 @@ public class FileConversionService : IFileConversionService
                 break;
             case FileCategory.Archive:
                 break;
+            
             case FileCategory.Video:
                 return await _videoFileConversionService.ConvertVideoAsync(
                     inputStream,
@@ -49,7 +53,10 @@ public class FileConversionService : IFileConversionService
                     token);
                 
             case FileCategory.Audio:
-                break;
+                return await _audioFileConversionService.ConvertAudioAsync(
+                    inputStream,
+                    outFormat,
+                    token);
         }
         
         return null;

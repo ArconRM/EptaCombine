@@ -10,7 +10,7 @@ public static class SupportedFormats
         { FileCategory.Document, [FileFormat.Pdf, FileFormat.Docx, FileFormat.Txt] },
         { FileCategory.Archive, [FileFormat.Zip, FileFormat.TarGz] },
         { FileCategory.Video, [FileFormat.Mp4, FileFormat.Avi, FileFormat.MkV, FileFormat.Mov, FileFormat.Hls, FileFormat.Gif] },
-        { FileCategory.Audio, [FileFormat.Mp3, FileFormat.Wav, FileFormat.Flac] },
+        { FileCategory.Audio, [FileFormat.Mp3, FileFormat.Wav, FileFormat.Flac, FileFormat.Aac, FileFormat.Adts] },
     };
 
     public static FileCategory GetCategory(FileFormat format) =>

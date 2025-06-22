@@ -20,6 +20,9 @@ public static class FileFormatExtensions
         if (format == FileFormat.Hls)
             return "mp4";
 
+        if (format == FileFormat.Aac)
+            return "adts";
+
         return format.ToString().ToLower();
     }
 }

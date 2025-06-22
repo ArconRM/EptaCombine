@@ -31,4 +31,6 @@ public enum FileFormat
     Mp3,
     Wav,
     Flac,
+    Aac,
+    Adts
 }
