@@ -3,8 +3,14 @@
 @{
     ViewData["Title"] = "Бомжатня";
 }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/css/index.css" />
 
-<div class="text-center">
-    <h1 class="display-4">Здарова, чмырь</h1>
-    <p>Уронишь сервер - тебе пиздец.</p>
+<div class="container py-2 text-center">
+    <h1 class="display-3 fw-bold mb-4 animate-pop">Здарова, чмырь</h1>
+    <p class="lead text-muted mb-5">Уронишь сервер - тебе пиздец.</p>
+
+    <a href="/FileConverter" class="btn btn-outline-primary btn-lg shadow transition-hover">
+        Перейти к конвертации файлов
+    </a>
 </div>
