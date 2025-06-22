@@ -67,8 +67,9 @@ public class FileConverter : PageModel
         {
             await using Stream inputStream = uploadFile.OpenReadStream();
             FileFormat inputFormat = SupportedFormats.GetFormatFromFileName(uploadFile.FileName).Value;
-            FileFormat outputFormat1 = FileFormat.Jpg;
-            Stream outputStream = await _fileConversionService.ConvertFileAsync(inputStream, inputFormat, outputFormat1, CancellationToken.None);
+            FileFormat outputFormatDecoded = SupportedFormats.GetFormatFromFileName(outputFormat).Value;
+            
+            Stream outputStream = await _fileConversionService.ConvertFileAsync(inputStream, inputFormat, outputFormatDecoded, CancellationToken.None);
             string convertedFileName = Path.GetFileNameWithoutExtension(uploadFile.FileName) + $".{outputFormat.ToLower()}";
             return File(outputStream, "application/octet-stream", convertedFileName);
         }

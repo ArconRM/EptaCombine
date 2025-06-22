@@ -9,7 +9,6 @@ public enum FileFormat
     Bmp,
     Tiff,
     Webp,
-    Gif,
 
     // Document
     Pdf,
@@ -25,6 +24,8 @@ public enum FileFormat
     Avi,
     MkV,
     Mov,
+    Hls,
+    Gif,
 
     // Audio
     Mp3,

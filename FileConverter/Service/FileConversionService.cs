@@ -7,10 +7,13 @@ namespace FileConverter.Service;
 public class FileConversionService : IFileConversionService
 {
     private readonly IImageFileConversionService _imageFileConversionService;
-
-    public FileConversionService(IImageFileConversionService imageFileConversionService)
+    private readonly IVideoFileConversionService _videoFileConversionService;
+    public FileConversionService(
+        IImageFileConversionService imageFileConversionService,
+        IVideoFileConversionService videoFileConversionService)
     {
         _imageFileConversionService = imageFileConversionService;
+        _videoFileConversionService = videoFileConversionService;
     }
 
     public async Task<Stream> ConvertFileAsync(
@@ -39,7 +42,12 @@ public class FileConversionService : IFileConversionService
             case FileCategory.Archive:
                 break;
             case FileCategory.Video:
-                break;
+                return await _videoFileConversionService.ConvertVideoAsync(
+                    inputStream,
+                    inFormat,
+                    outFormat,
+                    token);
+                
             case FileCategory.Audio:
                 break;
         }

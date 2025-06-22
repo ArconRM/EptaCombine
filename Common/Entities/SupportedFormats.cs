@@ -6,10 +6,10 @@ public static class SupportedFormats
 {
     private static readonly Dictionary<FileCategory, FileFormat[]> Mapping = new()
     {
-        { FileCategory.Image, [FileFormat.Png, FileFormat.Jpg, FileFormat.Jpeg, FileFormat.Bmp, FileFormat.Tiff, FileFormat.Webp, FileFormat.Gif] },
+        { FileCategory.Image, [FileFormat.Png, FileFormat.Jpg, FileFormat.Jpeg, FileFormat.Bmp, FileFormat.Tiff, FileFormat.Webp] },
         { FileCategory.Document, [FileFormat.Pdf, FileFormat.Docx, FileFormat.Txt] },
         { FileCategory.Archive, [FileFormat.Zip, FileFormat.TarGz] },
-        { FileCategory.Video, [FileFormat.Mp4, FileFormat.Avi, FileFormat.MkV, FileFormat.Mov] },
+        { FileCategory.Video, [FileFormat.Mp4, FileFormat.Avi, FileFormat.MkV, FileFormat.Mov, FileFormat.Hls, FileFormat.Gif] },
         { FileCategory.Audio, [FileFormat.Mp3, FileFormat.Wav, FileFormat.Flac] },
     };
     
@@ -19,7 +19,7 @@ public static class SupportedFormats
 
     public static FileFormat? GetFormatFromFileName(string fileName)
     {
-        var ext = Path.GetExtension(fileName).TrimStart('.').ToLower();
+        var ext = fileName.Split(".").Last().ToLower();
         return ExtensionToFormat.TryGetValue(ext, out var format) ? format : null;
     }
 

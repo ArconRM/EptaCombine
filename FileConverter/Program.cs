@@ -11,8 +11,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IFileConversionService, FileConversionService>();
+
 builder.Services.AddScoped<IImageFileConversionRepository, ImageFileConversionRepository>();
 builder.Services.AddScoped<IImageFileConversionService, ImageFileConversionService>();
+
+builder.Services.AddScoped<IVideoFileConversionRepository, VideoFileConversionRepository>();
+builder.Services.AddScoped<IVideoFileConversionService, VideoFileConversionService>();
 
 var app = builder.Build();
 

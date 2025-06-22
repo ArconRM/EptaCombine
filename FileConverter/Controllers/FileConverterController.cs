@@ -5,17 +5,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FileConverter.Controllers;
 
-public class ImageConverterController: Controller
+public class FileConverterController: Controller
 {
-    private readonly ILogger<ImageConverterController> _logger;
-    private readonly IImageFileConversionService _imageFileConversionService;
+    private readonly ILogger<FileConverterController> _logger;
+    private readonly IFileConversionService _fileConversionService;
 
-    public ImageConverterController(
-        ILogger<ImageConverterController> logger,
-        IImageFileConversionService imageFileConversionService)
+    public FileConverterController(
+        ILogger<FileConverterController> logger,
+        IFileConversionService fileConversionService)
     {
         _logger = logger;
-        _imageFileConversionService = imageFileConversionService;
+        _fileConversionService = fileConversionService;
     }
 
     [HttpPost(nameof(Convert))]
@@ -29,7 +29,7 @@ public class ImageConverterController: Controller
             }
 
             await using var inputStream = inputFile.OpenReadStream();
-            Stream outStream = await _imageFileConversionService.ConvertImageAsync(inputStream, inputFormat, outFormat, token);
+            Stream outStream = await _fileConversionService.ConvertFileAsync(inputStream, inputFormat, outFormat, token);
             return Ok(outStream);
         }
         catch (Exception e)
