@@ -1,0 +1,20 @@
+.error-video {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    animation: spin 2s ease-in-out;
+    display: block;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(1080deg); }
+}
+
+.video-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+}
