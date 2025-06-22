@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EptaCombine", "EptaCombine\EptaCombine.csproj", "{6E2D04E7-C017-4C1A-8471-F010114D5448}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileConverter", "FileConverter\FileConverter.csproj", "{C619B46D-7902-4731-9C17-74240F12B748}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{CF79DA53-8D5D-4B30-A73B-3812897A620A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E2D04E7-C017-4C1A-8471-F010114D5448}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E2D04E7-C017-4C1A-8471-F010114D5448}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E2D04E7-C017-4C1A-8471-F010114D5448}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E2D04E7-C017-4C1A-8471-F010114D5448}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C619B46D-7902-4731-9C17-74240F12B748}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C619B46D-7902-4731-9C17-74240F12B748}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C619B46D-7902-4731-9C17-74240F12B748}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C619B46D-7902-4731-9C17-74240F12B748}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF79DA53-8D5D-4B30-A73B-3812897A620A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF79DA53-8D5D-4B30-A73B-3812897A620A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF79DA53-8D5D-4B30-A73B-3812897A620A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF79DA53-8D5D-4B30-A73B-3812897A620A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

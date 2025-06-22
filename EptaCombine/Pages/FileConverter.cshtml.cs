@@ -1,0 +1,81 @@
+using System.ComponentModel.DataAnnotations;
+using Common.Entities;
+using Common.Entities.Enums;
+using FileConverter.Service.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace EptaCombine.Pages;
+
+[ValidateAntiForgeryToken]
+public class FileConverter : PageModel
+{
+    private readonly ILogger<FileConverter> _logger;
+    private readonly IFileConversionService _fileConversionService;
+
+    public FileConverter(ILogger<FileConverter> logger, IFileConversionService fileConversionService)
+    {
+        _logger = logger;
+        _fileConversionService = fileConversionService;
+    }
+
+    public void OnGet()
+    {
+    }
+    
+    public async Task<IActionResult> OnPostAnalyzeFileAsync([FromForm] IFormFile uploadFile)
+    {
+        if (uploadFile.Length == 0)
+        {
+            _logger.LogError("File is empty");
+            return BadRequest("No file provided");
+        }
+       
+        FileFormat? inputFormat = SupportedFormats.GetFormatFromFileName(uploadFile.FileName);
+        if (inputFormat == null)
+        {
+            _logger.LogError($"{uploadFile.FileName} extension is not supported");
+            return BadRequest("Unsupported file format");
+        }
+
+        FileCategory? category = SupportedFormats.GetCategory(inputFormat.Value);
+        if (category == null)
+        {
+            return BadRequest("Unknown file category");
+        }
+
+        List<string> outputFormats = SupportedFormats.GetFormats(category.Value)
+            .Where(f => f != inputFormat.Value)
+            .Select(f => f.ToString())
+            .ToList();
+
+        return new JsonResult(new
+        {
+            category = category.ToString(),
+            inputFormat = inputFormat.ToString(),
+            availableFormats = outputFormats
+        });
+    }
+
+    public async Task<IActionResult> OnPostConvertFileAsync(
+        [FromForm] IFormFile uploadFile,
+        [FromForm] string outputFormat, 
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using Stream inputStream = uploadFile.OpenReadStream();
+            FileFormat inputFormat = SupportedFormats.GetFormatFromFileName(uploadFile.FileName).Value;
+            FileFormat outputFormat1 = FileFormat.Jpg;
+            Stream outputStream = await _fileConversionService.ConvertFileAsync(inputStream, inputFormat, outputFormat1, CancellationToken.None);
+            string convertedFileName = Path.GetFileNameWithoutExtension(uploadFile.FileName) + $".{outputFormat.ToLower()}";
+            return File(outputStream, "application/octet-stream", convertedFileName);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+}
