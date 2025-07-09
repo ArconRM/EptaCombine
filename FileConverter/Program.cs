@@ -22,6 +22,9 @@ builder.Services.AddScoped<IVideoFileConversionService, VideoFileConversionServi
 builder.Services.AddScoped<IAudioFileConversionRepository, AudioFileConversionRepository>();
 builder.Services.AddScoped<IAudioFileConversionService, AudioFileConversionService>();
 
+builder.Services.AddScoped<IArchiveFileConversionRepository, ArchiveFileConversionRepository>();
+builder.Services.AddScoped<IArchiveFileConversionService, ArchiveFileConversionService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

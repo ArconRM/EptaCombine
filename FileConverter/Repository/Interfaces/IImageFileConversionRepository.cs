@@ -4,7 +4,7 @@ namespace FileConverter.Repository.Interfaces;
 
 public interface IImageFileConversionRepository
 {
-    Task<Stream> ConvertFileAsync(
+    Task<Stream> ConvertImageAsync(
         Stream inputStream,
         IImageFormat inFormat,
         IImageFormat outFormat,

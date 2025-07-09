@@ -12,7 +12,7 @@ namespace FileConverter.Repository;
 
 public class ImageFileConversionRepository: IImageFileConversionRepository
 {
-    public async Task<Stream> ConvertFileAsync(
+    public async Task<Stream> ConvertImageAsync(
         Stream inputStream,
         IImageFormat inFormat,
         IImageFormat outFormat,

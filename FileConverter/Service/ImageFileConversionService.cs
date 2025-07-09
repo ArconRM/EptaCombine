@@ -29,7 +29,7 @@ public class ImageFileConversionService : IImageFileConversionService
     {
         IImageFormat inImageFormat = MapFileFormat(inFormat);
         IImageFormat outImageFormat = MapFileFormat(outFormat);
-        return await _imageFileConversionRepository.ConvertFileAsync(inputStream, inImageFormat, outImageFormat, token);
+        return await _imageFileConversionRepository.ConvertImageAsync(inputStream, inImageFormat, outImageFormat, token);
     }
 
     private IImageFormat MapFileFormat(FileFormat fileFormat)

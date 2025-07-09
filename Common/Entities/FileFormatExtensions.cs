@@ -23,6 +23,9 @@ public static class FileFormatExtensions
         if (format == FileFormat.Aac)
             return "adts";
 
+        if (format == FileFormat.TarGZip)
+            return "tar.gz";
+
         return format.ToString().ToLower();
     }
 }

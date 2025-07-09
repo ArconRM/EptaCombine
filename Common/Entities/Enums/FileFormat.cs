@@ -17,7 +17,8 @@ public enum FileFormat
 
     // Archive
     Zip,
-    TarGz,
+    Tar,
+    TarGZip,
     
     // Video
     Mp4,
