@@ -47,6 +47,10 @@ document.getElementById('uploadFile').addEventListener('change', async function 
     }
 });
 
+document.getElementById('formatSelect').addEventListener('change', function() {
+    document.getElementById("result-section").classList.add("d-none");
+});
+
 document.getElementById('convertBtn').addEventListener('click', async function () {
     const fileInput = document.getElementById("uploadFile");
     const file = fileInput.files[0];
@@ -60,6 +64,7 @@ document.getElementById('convertBtn').addEventListener('click', async function (
     const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
     document.getElementById("progress-section").classList.remove("d-none");
+    document.getElementById("result-section").classList.add("d-none");
 
     const formData = new FormData();
     formData.append("uploadFile", file);

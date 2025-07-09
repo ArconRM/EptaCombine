@@ -23,7 +23,7 @@
         <p>📁 Категория файла: <strong id="categoryLabel"></strong></p>
         <label for="formatSelect" class="form-label fw-semibold">2️⃣ Выберите выходной формат:</label>
         <select id="formatSelect" class="form-select mb-3"></select>
-        <button id="convertBtn" class="btn btn-outline-primary w-100 fw-bold transition-hover">🚀 Отправить Орешник на Киев</button>
+        <button id="convertBtn" class="btn btn-outline-primary w-100 fw-bold transition-hover">🚀 Выполнить конвертацию</button>
     </div>
 
     <!-- Прогресс -->
@@ -34,10 +34,11 @@
     <!-- Скачивание -->
     <div id="result-section" class="card text-center p-4 d-none fade-in border-success border-2">
         <p class="mb-3 text-success fw-semibold">✅ Операция завершена!</p>
-        <a id="downloadLink" href="#" download class="btn btn-success w-50 mx-auto shadow">Задонатить ЦАХАЛ</a>
+        <a id="downloadLink" href="#" download class="btn btn-success w-50 mx-auto shadow">Скачать файл</a>
     </div>
 </div>
 
 @section Scripts {
-    <script src="js/fileConverter.js"></script>
+    @* <script src="js/fileConverter.js"></script> *@
+    <script src="~/js/fileConverter.js?v=@DateTime.Now.Ticks"></script>
 }
