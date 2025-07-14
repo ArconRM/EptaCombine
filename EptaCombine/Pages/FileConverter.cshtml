@@ -5,8 +5,8 @@
 }
 @Html.AntiForgeryToken()
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="css/fileConverter.css" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="css/fileConverter.css"/>
 
 <div class="container py-1">
     <h2 class="text-center mb-5 fw-bold">🛠 Конвертация файлов</h2>
@@ -14,7 +14,7 @@
     <!-- Загрузка файла -->
     <div id="upload-section" class="card shadow-sm mb-4 p-4 hover-zoom">
         <label for="uploadFile" class="form-label fw-semibold">1️⃣ Выберите файл:</label>
-        <input type="file" class="form-control" id="uploadFile" name="uploadFile" />
+        <input type="file" class="form-control" id="uploadFile" name="uploadFile"/>
         <div id="upload-error" class="text-danger mt-2"></div>
     </div>
 
@@ -23,7 +23,9 @@
         <p>📁 Категория файла: <strong id="categoryLabel"></strong></p>
         <label for="formatSelect" class="form-label fw-semibold">2️⃣ Выберите выходной формат:</label>
         <select id="formatSelect" class="form-select mb-3"></select>
-        <button id="convertBtn" class="btn btn-outline-primary w-100 fw-bold transition-hover">🚀 Выполнить конвертацию</button>
+        <button id="convertBtn" class="btn btn-outline-primary w-100 fw-bold transition-hover">🚀 Выполнить
+            конвертацию
+        </button>
     </div>
 
     <!-- Прогресс -->

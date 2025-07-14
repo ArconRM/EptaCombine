@@ -27,6 +27,7 @@ public enum FileFormat
     Mov,
     Hls,
     Gif,
+    Webm,
 
     // Audio
     Mp3,

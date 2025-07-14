@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EptaCombine.Pages;
 
+[DisableRequestSizeLimit]
 [ValidateAntiForgeryToken]
 public class FileConverter : PageModel
 {

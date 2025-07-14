@@ -2,6 +2,9 @@ using FileConverter.Repository;
 using FileConverter.Repository.Interfaces;
 using FileConverter.Service;
 using FileConverter.Service.Interfaces;
+using Microsoft.AspNetCore.Http.Features;
+
+const long maxFileSize = 1_048_576_000; // 1 GB
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,23 @@ builder.Services.AddScoped<IAudioFileConversionService, AudioFileConversionServi
 
 builder.Services.AddScoped<IArchiveFileConversionRepository, ArchiveFileConversionRepository>();
 builder.Services.AddScoped<IArchiveFileConversionService, ArchiveFileConversionService>();
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = maxFileSize;
+    options.ValueLengthLimit = int.MaxValue; 
+    options.MemoryBufferThreshold = int.MaxValue;
+});
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = maxFileSize;
+});
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = maxFileSize;
+});
 
 var app = builder.Build();
 
