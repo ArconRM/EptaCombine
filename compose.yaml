@@ -1,0 +1,15 @@
+﻿version: "3.8"
+services:
+  web:
+    build:
+      context: ./EptaCombine
+    ports:
+      - "5000:80"
+    depends_on:
+      - fileconverter
+
+  fileconverter:
+    build:
+      context: ./FileConverter
+    ports:
+      - "6000:80"
