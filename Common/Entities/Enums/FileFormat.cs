@@ -10,11 +10,6 @@ public enum FileFormat
     Tiff,
     Webp,
 
-    // Document
-    Pdf,
-    Docx,
-    Txt,
-
     // Archive
     Zip,
     Tar,

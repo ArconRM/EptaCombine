@@ -45,9 +45,6 @@ public class FileConversionService : IFileConversionService
                     outFormat,
                     token);
 
-            case FileCategory.Document:
-                break;
-
             case FileCategory.Archive:
                 return await _archiveFileConversionService.ConvertArchiveAsync(
                     inputStream,
