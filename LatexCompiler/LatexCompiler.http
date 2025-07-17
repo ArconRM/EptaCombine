@@ -1,0 +1,6 @@
+@LatexCompiler_HostAddress = http://localhost:5062
+
+GET {{LatexCompiler_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
