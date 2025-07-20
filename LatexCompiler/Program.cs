@@ -1,8 +1,10 @@
+using LatexCompiler.Options;
 using LatexCompiler.Repository;
 using LatexCompiler.Repository.Interfaces;
 using LatexCompiler.Service;
 using LatexCompiler.Service.Interfaces;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.EntityFrameworkCore;
 
 const long maxFileSize = 1_048_576_000; // 1 GB
 
@@ -14,14 +16,30 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<ILatexProjectRepository, LatexProjectRepository>();
+
 builder.Services.AddScoped<ILatexCompilingRepository, LatexCompilingRepository>();
 builder.Services.AddScoped<ILatexCompilingService, LatexCompilingService>();
+
+builder.Services.AddDbContext<LatexCompilerDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.Configure<CompilerSettings>(
+    builder.Configuration.GetSection("CompilerSettings"));
 
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = maxFileSize;
     options.ValueLengthLimit = int.MaxValue; 
     options.MemoryBufferThreshold = int.MaxValue;
+});
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
 });
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
@@ -44,5 +62,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseSession();
 app.MapControllers();
 app.Run();

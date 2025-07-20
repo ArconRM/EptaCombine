@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using Common.Entities;
+using LatexCompiler.Entities;
 using LatexCompiler.Repository.Interfaces;
 using LatexCompiler.Service.Interfaces;
 
@@ -7,78 +8,74 @@ namespace LatexCompiler.Service;
 
 public class LatexCompilingService : ILatexCompilingService
 {
-    private readonly ILatexCompilingRepository _repository;
-    private readonly ILogger<LatexCompilingService> _logger;
+    private readonly ILatexCompilingRepository _latexCompilingRepository;
+    private readonly ILatexProjectRepository _latexProjectRepository;
+    private const string SessionKey = "LatexProjectId";
 
-    public LatexCompilingService(ILatexCompilingRepository repository, ILogger<LatexCompilingService> logger)
+    public LatexCompilingService(
+        ILatexCompilingRepository latexCompilingRepository,
+        ILatexProjectRepository latexProjectRepository)
     {
-        _repository = repository;
-        _logger = logger;
+        _latexCompilingRepository = latexCompilingRepository;
+        _latexProjectRepository = latexProjectRepository;
     }
 
-    public async Task<Stream> CompileAsync(Stream inputZipStream, CancellationToken token)
+    public async Task<LatexProject> UploadAsync(Stream zipStream, ISession session, CancellationToken token)
     {
-        var project = await ExtractAsync(inputZipStream, token);
+        var project = _latexCompilingRepository.SaveProjectFromZip(zipStream);
+        project.Uuid = Guid.NewGuid();
         
-        try
-        {
-            return await _repository.CompileAsync(project, token);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Compilation failed");
-            throw;
-        }
-        finally
-        {
-            try
-            {
-                if (Directory.Exists(project.ProjectDirectory))
-                    Directory.Delete(project.ProjectDirectory, true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to clean up temporary directory");
-            }
-        }
+        session.SetString(SessionKey, project.Uuid.ToString());
+        await _latexProjectRepository.CreateAsync(project, token);
+        
+        return project;
     }
-    
-    private async Task<ExtractedLatexProject> ExtractAsync(Stream zipStream, CancellationToken token)
-    {
-        var tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-        Directory.CreateDirectory(tempDir);
 
+    public async Task<string> GetMainTexContentAsync(ISession session, CancellationToken token)
+    {
+        var projectUuid = Guid.Parse(session.GetString(SessionKey));
+        var project = await GetProjectAsync(projectUuid, token);
+
+        return await _latexCompilingRepository.GetMainTexContentAsync(project, token);
+    }
+
+    public async Task UpdateMainTexAsync(ISession session, string content, CancellationToken token)
+    {
+        var projectUuid = Guid.Parse(session.GetString(SessionKey));
+        var project = await GetProjectAsync(projectUuid, token);
+        
+        await _latexCompilingRepository.UpdateMainTexAsync(project, content, token);
+    }
+
+    public async Task<Stream> CompileAsync(ISession session, CancellationToken token)
+    {
+        var projectUuid = Guid.Parse(session.GetString(SessionKey));
+        var project = await GetProjectAsync(projectUuid, token);
+        
+        return await _latexCompilingRepository.CompileAsync(project, token);
+    }
+
+    public async Task CleanupAsync(ISession session, CancellationToken token)
+    {
+        var projectUuid = Guid.Parse(session.GetString(SessionKey));
+        var project = await GetProjectAsync(projectUuid, token);
+        
+        await _latexProjectRepository.DeleteAsync(projectUuid, token);
+        _latexCompilingRepository.Delete(project);
+    }
+
+    private async Task<LatexProject> GetProjectAsync(Guid projectUuid, CancellationToken token)
+    {
+        LatexProject project;
         try
         {
-            using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: true))
-            {
-                archive.ExtractToDirectory(tempDir);
-            }
-
-            var macosDir = Path.Combine(tempDir, "__MACOSX");
-            if (Directory.Exists(macosDir))
-                Directory.Delete(macosDir, true);
-
-            var texFiles = Directory.GetFiles(tempDir, "*.tex", SearchOption.AllDirectories);
-            if (!texFiles.Any())
-                throw new InvalidOperationException("No .tex files found in archive");
-
-            var mainTex = texFiles.FirstOrDefault(f => 
-                Path.GetFileName(f).Equals("main.tex", StringComparison.OrdinalIgnoreCase)) ?? texFiles.First();
-
-            var workDir = Path.GetDirectoryName(mainTex);
-
-            return new ExtractedLatexProject
-            {
-                ProjectDirectory = workDir,
-                MainTexPath = mainTex
-            };
+            project = await _latexProjectRepository.GetAsync(projectUuid, token);
         }
         catch
         {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-            throw;
+            throw new KeyNotFoundException($"Project with Uuid {projectUuid} was not found");
         }
+
+        return project;
     }
 }
