@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FileConverter.Controllers;
 
-public class FileConverterController: Controller
+[ApiController]
+[Route("api/[controller]")]
+public class FileConverterController: ControllerBase
 {
     private readonly ILogger<FileConverterController> _logger;
     private readonly IFileConversionService _fileConversionService;

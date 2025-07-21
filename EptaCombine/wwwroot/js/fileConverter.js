@@ -19,7 +19,7 @@ document.getElementById('uploadFile').addEventListener('change', async function 
         if (!res.ok) {
             const error = await res.text();
             console.error("Error from backend:", error);
-            document.getElementById("upload-error").innerText = error;
+            window.location.href = "/Error";
             return;
         }
 
@@ -27,7 +27,6 @@ document.getElementById('uploadFile').addEventListener('change', async function 
         const category = result.category;
         const formats = result.availableFormats;
 
-        document.getElementById("upload-error").innerText = "";
         document.getElementById("categoryLabel").innerText = category;
 
         const select = document.getElementById("formatSelect");
@@ -43,7 +42,7 @@ document.getElementById('uploadFile').addEventListener('change', async function 
         document.getElementById("result-section").classList.add("d-none");
     } catch (err) {
         console.error("JS exception:", err);
-        document.getElementById("upload-error").innerText = "Произошла ошибка.";
+        window.location.href = "/Error";
     }
 });
 
@@ -57,7 +56,6 @@ document.getElementById('convertBtn').addEventListener('click', async function (
     const outputFormat = document.getElementById("formatSelect").value;
 
     if (!file || !outputFormat) {
-        document.getElementById("upload-error").innerText = "Выберите файл и формат.";
         return;
     }
 
@@ -82,8 +80,7 @@ document.getElementById('convertBtn').addEventListener('click', async function (
         if (!response.ok) {
             const error = await response.text();
             console.error("Conversion failed:", error);
-            document.getElementById("upload-error").innerText = error;
-            document.getElementById("progress-section").classList.add("d-none");
+            window.location.href = "/Error";
             return;
         }
 
@@ -110,7 +107,6 @@ document.getElementById('convertBtn').addEventListener('click', async function (
 
     } catch (err) {
         console.error("JS exception during convert:", err);
-        document.getElementById("upload-error").innerText = "Произошла ошибка.";
-        document.getElementById("progress-section").classList.add("d-none");
+        window.location.href = "/Error";
     }
 });

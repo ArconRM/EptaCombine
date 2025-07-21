@@ -10,12 +10,17 @@
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj" />
       <ProjectReference Include="..\FileConverter\FileConverter.csproj" />
+      <ProjectReference Include="..\LatexCompiler\LatexCompiler.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.7" />
     </ItemGroup>
 
 </Project>

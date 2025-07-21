@@ -10,12 +10,13 @@ namespace EptaCombine.Pages;
 
 [DisableRequestSizeLimit]
 [ValidateAntiForgeryToken]
-public class FileConverter : PageModel
+public class FileConverterModel : PageModel
 {
-    private readonly ILogger<FileConverter> _logger;
+    private readonly ILogger<FileConverterModel> _logger;
+    
     private readonly IFileConversionService _fileConversionService;
 
-    public FileConverter(ILogger<FileConverter> logger, IFileConversionService fileConversionService)
+    public FileConverterModel(ILogger<FileConverterModel> logger, IFileConversionService fileConversionService)
     {
         _logger = logger;
         _fileConversionService = fileConversionService;
@@ -62,7 +63,7 @@ public class FileConverter : PageModel
     public async Task<IActionResult> OnPostConvertFileAsync(
         [FromForm] IFormFile uploadFile,
         [FromForm] string outputFormat, 
-        CancellationToken cancellationToken)
+        CancellationToken token)
     {
         try
         {
@@ -71,7 +72,7 @@ public class FileConverter : PageModel
             FileFormat outputFormatDecoded = FileFormatExtensions.GetFormatFromFileName(outputFormat)!.Value;
             outputFormat = FileFormatExtensions.GetStringExtension(outputFormatDecoded);
             
-            Stream outputStream = await _fileConversionService.ConvertFileAsync(inputStream, inputFormat, outputFormatDecoded, CancellationToken.None);
+            Stream outputStream = await _fileConversionService.ConvertFileAsync(inputStream, inputFormat, outputFormatDecoded, token);
             string convertedFileName = Path.GetFileNameWithoutExtension(uploadFile.FileName) + $".{outputFormat}";
             return File(outputStream, "application/octet-stream", convertedFileName);
         }

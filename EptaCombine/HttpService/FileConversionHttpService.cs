@@ -26,7 +26,7 @@ public class FileConversionHttpService: IFileConversionService
         fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
         content.Add(fileContent, "inputFile", $"input.{FileFormatExtensions.GetStringExtension(inFormat)}");
         
-        var url = $"Convert?inputFormat={(int)inFormat}&outFormat={(int)outFormat}";
+        var url = $"api/fileconverter/Convert?inputFormat={(int)inFormat}&outFormat={(int)outFormat}";
         var response = await _httpClient.PostAsync(url, content, token);
 
         if (!response.IsSuccessStatusCode)

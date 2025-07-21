@@ -1,5 +1,5 @@
 @page
-@model EptaCombine.Pages.FileConverter
+@model EptaCombine.Pages.FileConverterModel
 @{
     ViewData["Title"] = "Конвертация файлов";
 }
@@ -15,7 +15,6 @@
     <div id="upload-section" class="card shadow-sm mb-4 p-4 hover-zoom">
         <label for="uploadFile" class="form-label fw-semibold">1️⃣ Выберите файл:</label>
         <input type="file" class="form-control" id="uploadFile" name="uploadFile"/>
-        <div id="upload-error" class="text-danger mt-2"></div>
     </div>
 
     <!-- Выбор формата -->
@@ -23,14 +22,13 @@
         <p>📁 Категория файла: <strong id="categoryLabel"></strong></p>
         <label for="formatSelect" class="form-label fw-semibold">2️⃣ Выберите выходной формат:</label>
         <select id="formatSelect" class="form-select mb-3"></select>
-        <button id="convertBtn" class="btn btn-outline-primary w-100 fw-bold transition-hover">🚀 Выполнить
-            конвертацию
+        <button id="convertBtn" class="btn btn-outline-primary w-100 fw-bold transition-hover">🚀 Выполнить спецоперацию
         </button>
     </div>
 
     <!-- Прогресс -->
     <div id="progress-section" class="alert alert-info text-center d-none">
-        ⏳ Обработка файла, пожалуйста, подождите...
+        ⏳ Обработка файла, пожалуйста, подождите (3 дня)...
     </div>
 
     <!-- Скачивание -->
@@ -41,6 +39,5 @@
 </div>
 
 @section Scripts {
-    @* <script src="js/fileConverter.js"></script> *@
     <script src="~/js/fileConverter.js?v=@DateTime.Now.Ticks"></script>
 }

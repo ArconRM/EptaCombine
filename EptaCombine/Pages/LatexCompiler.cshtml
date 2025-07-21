@@ -1,0 +1,59 @@
+@page
+@model EptaCombine.Pages.LatexCompilerModel
+@{
+    ViewData["Title"] = "LaTeX Compiler";
+}
+@Html.AntiForgeryToken()
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="css/fileConverter.css" />
+
+<div id="latexCompilerContainer" 
+     data-upload-url="@Url.Page("./LatexCompiler", "Upload")"
+     data-get-main-tex-url="@Url.Page("./LatexCompiler", "GetMainTex")"
+     data-save-main-tex-url="@Url.Page("./LatexCompiler", "SaveMainTex")"
+     data-compile-url="@Url.Page("./LatexCompiler", "Compile")"
+     data-cleanup-url="@Url.Page("./LatexCompiler", "Cleanup")">
+
+    <div class="container py-1 pb-5">
+        <h2 class="text-center mb-4 fw-bold">📄 Редактор LaTeX</h2>
+
+        <!-- Upload Zip -->
+        <div class="card shadow-sm mb-4 p-4 hover-zoom">
+            <label for="zipFile" class="form-label fw-semibold">📦 Загрузите ZIP с проектом:</label>
+            <input type="file" class="form-control" id="zipFile" />
+        </div>
+
+        <!-- Editor & Viewer -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card shadow-sm p-3 h-100">
+                    <div class="d-flex justify-content-end mb-2">
+                        <button id="saveBtn" class="btn btn-outline-success btn-sm me-2">💾 Сохранить</button>
+                        <button id="compileBtn" class="btn btn-outline-danger btn-sm">⚙️ Компилировать</button>
+                    </div>
+                    <textarea id="latexEditor" class="form-control" rows="25" spellcheck="false"></textarea>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm p-3 h-100">
+                    <iframe id="pdfViewer" width="100%" height="600px"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div id="toastBox" class="toast align-items-center text-white bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">✅ Успешно!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/js/latexCompiler.js?v=@DateTime.Now.Ticks"></script>
+}

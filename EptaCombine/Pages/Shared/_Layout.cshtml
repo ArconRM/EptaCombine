@@ -22,22 +22,24 @@
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-page="/FileConverter">Конвертация</a>
                     </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-page="/LatexCompiler">LaTeX</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 </header>
-<div class="container">
-    <main role="main" class="pb-3">
+<div class="d-flex flex-column min-vh-100">
+    <main role="main" class="flex-fill container pb-5">
         @RenderBody()
     </main>
-</div>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2069 - ЕптаКомбайн
-    </div>
-</footer>
+    <footer class="bg-dark text-white text-center py-4 mt-auto">
+        <small>© 2069 ЕптаКомбайн. Все права нарушены</small>
+    </footer>
+</div>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
