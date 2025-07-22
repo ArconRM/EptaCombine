@@ -1,4 +1,5 @@
-using LatexCompiler.Contracts;
+using Common.DTO;
+using EptaCombine.HttpService.Interfaces;
 using LatexCompiler.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,9 +12,11 @@ public class LatexCompilerModel : PageModel
 {
     private readonly ILogger<FileConverterModel> _logger;
     
-    private readonly ILatexCompilingService _latexCompilerService;
+    private readonly ILatexCompilingHttpService _latexCompilerService;
 
-    public LatexCompilerModel(ILogger<FileConverterModel> logger, ILatexCompilingService latexCompilerService)
+    public LatexCompilerModel(
+        ILogger<FileConverterModel> logger, 
+        ILatexCompilingHttpService latexCompilerService)
     {
         _logger = logger;
         _latexCompilerService = latexCompilerService;
@@ -36,9 +39,9 @@ public class LatexCompilerModel : PageModel
         return new JsonResult(new { content });
     }
 
-    public async Task<IActionResult> OnPostSaveMainTexAsync([FromBody] LatexRequest request, CancellationToken token)
+    public async Task<IActionResult> OnPostSaveMainTexAsync([FromBody] LatexContentRequest contentRequest, CancellationToken token)
     {
-        await _latexCompilerService.UpdateMainTexAsync(HttpContext.Session, request.Content, token);
+        await _latexCompilerService.UpdateMainTexAsync(HttpContext.Session, contentRequest.Content, token);
         return new JsonResult(new { success = true });
     }
 

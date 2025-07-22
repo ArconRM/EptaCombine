@@ -1,5 +1,6 @@
 using Common.Options;
 using EptaCombine.HttpService;
+using EptaCombine.HttpService.Interfaces;
 using FileConverter.Service.Interfaces;
 using LatexCompiler.Service.Interfaces;
 using Microsoft.AspNetCore.Http.Features;
@@ -25,13 +26,13 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddHttpClient<IFileConversionService, FileConversionHttpService>(client =>
+builder.Services.AddHttpClient<IFileConversionHttpService, FileConversionHttpService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5193/");
     client.Timeout = TimeSpan.FromMinutes(10);
 });
 
-builder.Services.AddHttpClient<ILatexCompilingService, LatexCompilingHttpService>(client =>
+builder.Services.AddHttpClient<ILatexCompilingHttpService, LatexCompilingHttpService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5062/");
     client.Timeout = TimeSpan.FromMinutes(10);

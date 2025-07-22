@@ -10,7 +10,6 @@ public class LatexCompilingService : ILatexCompilingService
 {
     private readonly ILatexCompilingRepository _latexCompilingRepository;
     private readonly ILatexProjectRepository _latexProjectRepository;
-    private const string SessionKey = "LatexProjectId";
 
     public LatexCompilingService(
         ILatexCompilingRepository latexCompilingRepository,
@@ -20,44 +19,39 @@ public class LatexCompilingService : ILatexCompilingService
         _latexProjectRepository = latexProjectRepository;
     }
 
-    public async Task<LatexProject> UploadAsync(Stream zipStream, ISession session, CancellationToken token)
+    public async Task<LatexProject> UploadAsync(Stream zipStream, CancellationToken token)
     {
         var project = _latexCompilingRepository.SaveProjectFromZip(zipStream);
         project.Uuid = Guid.NewGuid();
         
-        session.SetString(SessionKey, project.Uuid.ToString());
         await _latexProjectRepository.CreateAsync(project, token);
         
         return project;
     }
 
-    public async Task<string> GetMainTexContentAsync(ISession session, CancellationToken token)
+    public async Task<string> GetMainTexContentAsync(Guid projectUuid, CancellationToken token)
     {
-        var projectUuid = Guid.Parse(session.GetString(SessionKey));
         var project = await GetProjectAsync(projectUuid, token);
 
         return await _latexCompilingRepository.GetMainTexContentAsync(project, token);
     }
 
-    public async Task UpdateMainTexAsync(ISession session, string content, CancellationToken token)
+    public async Task UpdateMainTexAsync(Guid projectUuid, string content, CancellationToken token)
     {
-        var projectUuid = Guid.Parse(session.GetString(SessionKey));
         var project = await GetProjectAsync(projectUuid, token);
         
         await _latexCompilingRepository.UpdateMainTexAsync(project, content, token);
     }
 
-    public async Task<Stream> CompileAsync(ISession session, CancellationToken token)
+    public async Task<Stream> CompileAsync(Guid projectUuid, CancellationToken token)
     {
-        var projectUuid = Guid.Parse(session.GetString(SessionKey));
         var project = await GetProjectAsync(projectUuid, token);
         
         return await _latexCompilingRepository.CompileAsync(project, token);
     }
 
-    public async Task CleanupAsync(ISession session, CancellationToken token)
+    public async Task CleanupAsync(Guid projectUuid, CancellationToken token)
     {
-        var projectUuid = Guid.Parse(session.GetString(SessionKey));
         var project = await GetProjectAsync(projectUuid, token);
         
         await _latexProjectRepository.DeleteAsync(projectUuid, token);

@@ -1,11 +1,12 @@
 using System.Net.Http.Headers;
 using Common.Entities;
 using Common.Entities.Enums;
+using EptaCombine.HttpService.Interfaces;
 using FileConverter.Service.Interfaces;
 
 namespace EptaCombine.HttpService;
 
-public class FileConversionHttpService: IFileConversionService
+public class FileConversionHttpService: IFileConversionHttpService
 {
     private readonly HttpClient _httpClient;
 

@@ -1,4 +1,5 @@
 using Common.Options;
+using LatexCompiler.Automapper;
 using LatexCompiler.Options;
 using LatexCompiler.Repository;
 using LatexCompiler.Repository.Interfaces;
@@ -20,6 +21,8 @@ var maxFileSize = builder.Configuration
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddScoped<ILatexProjectRepository, LatexProjectRepository>();
 

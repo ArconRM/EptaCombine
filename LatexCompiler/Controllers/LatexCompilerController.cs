@@ -1,4 +1,6 @@
-using LatexCompiler.Contracts;
+using AutoMapper;
+using Common.DTO;
+using LatexCompiler.Entities;
 using LatexCompiler.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +12,15 @@ public class LatexCompilerController : ControllerBase
 {
     private readonly ILatexCompilingService _latexService;
     private readonly ILogger<LatexCompilerController> _logger;
-
-    public LatexCompilerController(ILatexCompilingService latexService, ILogger<LatexCompilerController> logger)
+    private readonly IMapper _mapper;
+    public LatexCompilerController(
+        ILatexCompilingService latexService, 
+        ILogger<LatexCompilerController> logger,
+        IMapper mapper)
     {
         _latexService = latexService;
         _logger = logger;
+        _mapper = mapper;
     }
 
     [HttpPost(nameof(Upload))]
@@ -27,8 +33,9 @@ public class LatexCompilerController : ControllerBase
 
             using var zipStream = zipFile.OpenReadStream();
 
-            var project = await _latexService.UploadAsync(zipStream, HttpContext.Session, token);
-            return Ok(new { project.Uuid });
+            LatexProject project = await _latexService.UploadAsync(zipStream, token);
+            LatexProjectDTO projectDTO = _mapper.Map<LatexProjectDTO>(project);
+            return Ok(projectDTO);
         }
         catch (Exception ex)
         {
@@ -38,11 +45,11 @@ public class LatexCompilerController : ControllerBase
     }
 
     [HttpGet(nameof(GetMainTexContent))]
-    public async Task<IActionResult> GetMainTexContent(CancellationToken token)
+    public async Task<IActionResult> GetMainTexContent(Guid projectUuid, CancellationToken token)
     {
         try
         {
-            var content = await _latexService.GetMainTexContentAsync(HttpContext.Session, token);
+            string content = await _latexService.GetMainTexContentAsync(projectUuid, token);
             return Ok(content);
         }
         catch (Exception ex)
@@ -53,11 +60,11 @@ public class LatexCompilerController : ControllerBase
     }
 
     [HttpPost(nameof(UpdateMainTex))]
-    public async Task<IActionResult> UpdateMainTex([FromBody] LatexRequest request, CancellationToken token)
+    public async Task<IActionResult> UpdateMainTex([FromBody] LatexContentRequest contentRequest, CancellationToken token)
     {
         try
         {
-            await _latexService.UpdateMainTexAsync(HttpContext.Session, request.Content, token);
+            await _latexService.UpdateMainTexAsync(contentRequest.ProjectUuid, contentRequest.Content, token);
             return Ok("main.tex updated.");
         }
         catch (Exception ex)
@@ -68,11 +75,11 @@ public class LatexCompilerController : ControllerBase
     }
 
     [HttpGet(nameof(Compile))]
-    public async Task<IActionResult> Compile(CancellationToken token)
+    public async Task<IActionResult> Compile(Guid projectUuid, CancellationToken token)
     {
         try
         {
-            var pdfStream = await _latexService.CompileAsync(HttpContext.Session, token);
+            Stream pdfStream = await _latexService.CompileAsync(projectUuid, token);
             return File(pdfStream, "application/pdf", "output.pdf");
         }
         catch (Exception ex)
@@ -83,11 +90,11 @@ public class LatexCompilerController : ControllerBase
     }
 
     [HttpDelete(nameof(Cleanup))]
-    public async Task<IActionResult> Cleanup(CancellationToken token)
+    public async Task<IActionResult> Cleanup(Guid projectUuid, CancellationToken token)
     {
         try
         {
-            await _latexService.CleanupAsync(HttpContext.Session, token);
+            await _latexService.CleanupAsync(projectUuid, token);
             return Ok("Project cleaned up.");
         }
         catch (Exception ex)

@@ -3,7 +3,9 @@ const zipFileInput = document.getElementById('zipFile');
 const latexEditor = document.getElementById('latexEditor');
 const saveBtn = document.getElementById('saveBtn');
 const compileBtn = document.getElementById('compileBtn');
+const deleteZipBtn = document.getElementById('deleteZipBtn');
 const pdfViewer = document.getElementById('pdfViewer');
+const downloadPdfBtn = document.getElementById('downloadPdfBtn')
 const toastBox = document.getElementById('toastBox');
 
 // Get URLs from data attributes
@@ -28,7 +30,25 @@ function showToast(message, isSuccess = true) {
     bootstrapToast.show();
 }
 
+function setUIBusy(message) {
+    document.getElementById('overlay').classList.remove('d-none');
+    document.getElementById('overlayMessage').textContent = message;
+    document.getElementById('latexCompilerContainer').classList.add('disabled-overlay');
+}
+
+function clearUIBusy() {
+    document.getElementById('overlay').classList.add('d-none');
+    document.getElementById('latexCompilerContainer').classList.remove('disabled-overlay');
+}
+
+function setZipControlsEnabled(enabled) {
+    zipFileInput.disabled = !enabled;
+    document.getElementById('deleteZipBtn').disabled = enabled;
+}
+
+
 zipFileInput.addEventListener('change', async function() {
+    setUIBusy("Загрузка файла...");
     const file = this.files[0];
     if (!file) return;
 
@@ -47,18 +67,21 @@ zipFileInput.addEventListener('change', async function() {
         if (!res.ok) {
             const error = await res.text();
             console.error("Error from backend:", error);
-            showToast(`Upload error: ${error}`, false);
+            showToast(`Ошибка загрузки`, false);
             return;
         }
 
         const result = await res.json();
         if (result.success) {
-            showToast('ZIP file uploaded successfully');
+            showToast('ZIP файл успешно загружен');
             await loadMainTexContent();
         }
     } catch (err) {
         console.error("JS exception:", err);
-        showToast(`Upload error: ${err.message}`, false);
+        showToast(`Ошибка загрузки`, false);
+    } finally {
+        clearUIBusy();
+        setZipControlsEnabled(false);
     }
 });
 
@@ -81,7 +104,7 @@ async function loadMainTexContent() {
         latexEditor.value = result.content;
     } catch (err) {
         console.error("Error loading main.tex:", err);
-        showToast(`Error loading content: ${err.message}`, false);
+        showToast(`Ошибка при скачивании .tex:`, false);
     }
 }
 
@@ -103,16 +126,17 @@ saveBtn.addEventListener('click', async function() {
 
         const result = await res.json();
         if (result.success) {
-            showToast('File saved successfully');
+            showToast('Файл успешно сохранен');
         }
     } catch (err) {
         console.error("Save error:", err);
-        showToast(`Save error: ${err.message}`, false);
+        showToast(`Ошибка при сохранении`, false);
     }
 });
 
 // Compile to PDF
 compileBtn.addEventListener('click', async function() {
+    setUIBusy("Компиляция...");
     try {
         // First save the content
         await saveBtn.click();
@@ -132,19 +156,47 @@ compileBtn.addEventListener('click', async function() {
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         pdfViewer.src = url;
-        showToast('PDF compiled successfully');
+        showToast('PDF скомпилирован успешно');
+
+        downloadPdfBtn.href = url;
     } catch (err) {
         console.error("Compile error:", err);
-        showToast(`Compile error: ${err.message}`, false);
+        showToast(`Ошибка при компиляции`, false);
+    } finally {
+        clearUIBusy();
     }
 });
 
-window.addEventListener('beforeunload', function() {
+deleteZipBtn.addEventListener('click', async () => {
+    setUIBusy("Удаление ZIP...");
     try {
-        const formData = new FormData();
-        formData.append('__RequestVerificationToken', token);
-        navigator.sendBeacon(urls.cleanup, formData);
+        const res = await fetch(urls.cleanup, {
+            method: "POST",
+            headers: {
+                "RequestVerificationToken": token
+            }
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        showToast("ZIP удален");
+        setZipControlsEnabled(true);
+        latexEditor.value = '';
+        pdfViewer.src = '';
+        zipFileInput.value = '';
     } catch (err) {
-        console.error("Cleanup error:", err);
+        showToast(`Ошибка удаления ZIP: ${err.message}`, false);
+    } finally {
+        clearUIBusy();
     }
 });
+
+// window.addEventListener('beforeunload', function() {
+//     try {
+//         const formData = new FormData();
+//         formData.append('__RequestVerificationToken', token);
+//         navigator.sendBeacon(urls.cleanup, formData);
+//     } catch (err) {
+//         console.error("Cleanup error:", err);
+//     }
+// });

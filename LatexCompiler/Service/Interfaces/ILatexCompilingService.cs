@@ -5,13 +5,13 @@ namespace LatexCompiler.Service.Interfaces;
 
 public interface ILatexCompilingService
 {
-    Task<LatexProject> UploadAsync(Stream zipStream, ISession session, CancellationToken token);
+    Task<LatexProject> UploadAsync(Stream zipStream, CancellationToken token);
     
-    Task<string> GetMainTexContentAsync(ISession session, CancellationToken token);
+    Task<string> GetMainTexContentAsync(Guid projectUuid, CancellationToken token);
     
-    Task UpdateMainTexAsync(ISession session, string content, CancellationToken token);
+    Task UpdateMainTexAsync(Guid projectUuid, string content, CancellationToken token);
     
-    Task<Stream> CompileAsync(ISession session, CancellationToken token);
+    Task<Stream> CompileAsync(Guid projectUuid, CancellationToken token);
     
-    Task CleanupAsync(ISession session, CancellationToken token);
+    Task CleanupAsync(Guid projectUuid, CancellationToken token);
 }

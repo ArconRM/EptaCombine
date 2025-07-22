@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Common.Entities;
 using Common.Entities.Enums;
+using EptaCombine.HttpService.Interfaces;
 using FileConverter.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,9 +15,9 @@ public class FileConverterModel : PageModel
 {
     private readonly ILogger<FileConverterModel> _logger;
     
-    private readonly IFileConversionService _fileConversionService;
+    private readonly IFileConversionHttpService _fileConversionService;
 
-    public FileConverterModel(ILogger<FileConverterModel> logger, IFileConversionService fileConversionService)
+    public FileConverterModel(ILogger<FileConverterModel> logger, IFileConversionHttpService fileConversionService)
     {
         _logger = logger;
         _fileConversionService = fileConversionService;
