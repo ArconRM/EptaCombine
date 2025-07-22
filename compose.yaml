@@ -12,4 +12,10 @@ services:
     build:
       context: ./FileConverter
     ports:
-      - "6000:80"
+      - "5001:80"
+  
+  latexcompiler:
+    build:
+      context: ./LatexCompiler
+    ports:
+      - "5002:80"
