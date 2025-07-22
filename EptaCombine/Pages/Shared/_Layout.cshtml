@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/EptaCombine.styles.css" asp-append-version="true"/>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container">
@@ -31,15 +31,14 @@
         </div>
     </nav>
 </header>
-<div class="d-flex flex-column min-vh-100">
-    <main role="main" class="flex-fill container pb-5">
-        @RenderBody()
-    </main>
 
-    <footer class="bg-dark text-white text-center py-4 mt-auto">
-        <small>© 2069 ЕптаКомбайн. Все права нарушены</small>
-    </footer>
-</div>
+<main class="flex-grow-1">
+    @RenderBody()
+</main>
+
+<footer class="bg-dark text-white text-center py-4">
+    <small>© 2069 ЕптаКомбайн. Все права нарушены</small>
+</footer>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

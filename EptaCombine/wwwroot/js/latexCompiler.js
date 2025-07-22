@@ -37,14 +37,21 @@ function showToast(message, isSuccess = true) {
 }
 
 function setUIBusy(message) {
-    document.getElementById('overlay').classList.remove('d-none');
+    const overlay = document.getElementById('overlay');
+    const video = document.getElementById('overlay-video');
+
+    overlay.classList.remove('d-none');
     document.getElementById('overlayMessage').textContent = message;
-    document.getElementById('latexCompilerContainer').classList.add('disabled-overlay');
+
+    video.currentTime = 0;
+    video.play().catch(e => console.log("Video play blocked:", e));
 }
 
 function clearUIBusy() {
-    document.getElementById('overlay').classList.add('d-none');
-    document.getElementById('latexCompilerContainer').classList.remove('disabled-overlay');
+    const overlay = document.getElementById('overlay');
+    overlay.classList.add('d-none');
+
+    document.getElementById('overlay-video').pause();
 }
 
 function setZipControlsEnabled(enabled) {
@@ -305,13 +312,13 @@ window.require(['vs/editor/editor.main'], async () => {
 
     monacoEditor = monaco.editor.create(document.getElementById('latexEditor'), {
         value: '',
-        language: 'latex',
+        language: 'latex', // Use the newly registered language
         theme: 'vs-dark',
         automaticLayout: true,
         minimap: { enabled: true },
         fontSize: 14,
         scrollBeyondLastLine: false,
-        wordWrap: 'on'
+        wordWrap: 'on' // Enable word wrapping for better readability
     });
     
     await loadMainTexContent();
