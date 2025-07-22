@@ -1,6 +1,7 @@
 // Get elements
+let monacoEditor;
+
 const zipFileInput = document.getElementById('zipFile');
-const latexEditor = document.getElementById('latexEditor');
 const saveBtn = document.getElementById('saveBtn');
 const compileBtn = document.getElementById('compileBtn');
 const deleteZipBtn = document.getElementById('deleteZipBtn');
@@ -20,14 +21,19 @@ const urls = {
 
 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-const bootstrapToast = new bootstrap.Toast(toastBox);
+window.addEventListener('load', () => {
+    const toastBox = document.getElementById('toastBox');
+    if (toastBox) {
+        window.bootstrapToast = new bootstrap.Toast(toastBox);
+    }
+});
 
 function showToast(message, isSuccess = true) {
     const toastBody = toastBox.querySelector('.toast-body');
     toastBody.textContent = message;
     toastBox.className = 'toast align-items-center text-white border-0';
     toastBox.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
-    bootstrapToast.show();
+    window.bootstrapToast.show();
 }
 
 function setUIBusy(message) {
@@ -101,7 +107,7 @@ async function loadMainTexContent() {
         }
 
         const result = await res.json();
-        latexEditor.value = result.content;
+        monacoEditor.setValue(result.content);
         setZipControlsEnabled(false);
     } catch (err) {
         console.error("Error loading main.tex:", err);
@@ -118,7 +124,7 @@ saveBtn.addEventListener('click', async function() {
                 "RequestVerificationToken": token,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ content: latexEditor.value })
+            body: JSON.stringify({ content: monacoEditor.getValue() })
         });
 
         if (!res.ok) {
@@ -182,7 +188,7 @@ deleteZipBtn.addEventListener('click', async () => {
 
         showToast("ZIP удален");
         setZipControlsEnabled(true);
-        latexEditor.value = '';
+        monacoEditor.setValue('');
         pdfViewer.src = '';
         zipFileInput.value = '';
     } catch (err) {
@@ -192,6 +198,121 @@ deleteZipBtn.addEventListener('click', async () => {
     }
 });
 
-window.addEventListener('load', async () => {
+window.require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+
+window.require(['vs/editor/editor.main'], async () => {
+    // --- 1. Register a new language ---
+    monaco.languages.register({ id: 'latex' });
+
+    // --- 2. Define the Monarch tokenizer for LaTeX syntax highlighting ---
+    monaco.languages.setMonarchTokensProvider('latex', {
+        // Set default token for anything not matched. 'source' is for normal text.
+        defaultToken: 'source',
+
+        // Language keywords
+        keywords: [
+            'documentclass', 'usepackage', 'begin', 'end', 'title', 'author', 'date',
+            'maketitle', 'tableofcontents', 'section', 'subsection', 'subsubsection',
+            'paragraph', 'subparagraph', 'chapter', 'appendix', 'let', 'newcommand',
+            'renewcommand', 'def', 'label', 'ref', 'pageref', 'cite', 'footnote',
+            'emph', 'textbf', 'textit', 'underline', 'texttt', 'item', 'caption',
+            'includegraphics', 'include', 'input', 'bibliographystyle', 'bibliography'
+        ],
+
+        // Operators and delimiters
+        operators: [
+            '=', '+', '-', '*', '/', '^', '_', '&', '#', '@'
+        ],
+
+        // Brackets and parentheses
+        brackets: [
+            ['{', '}', 'delimiter.curly'],
+            ['[', ']', 'delimiter.square'],
+            ['(', ')', 'delimiter.parenthesis']
+        ],
+
+        // The main tokenizer
+        tokenizer: {
+            root: [
+                // Comments: % followed by anything until the end of the line
+                [/%.*$/, 'comment'],
+
+                // Commands: backslash followed by letters
+                [/\\([a-zA-Z]+)/, {
+                    cases: {
+                        '@keywords': 'keyword',
+                        '@default': 'keyword.control'
+                    }
+                }],
+
+                // Special characters and symbols
+                [/\\./, 'keyword.control'],
+
+                // Delimiters and operators
+                [/[{}[\]()]/, '@brackets'],
+                [/[=+\-*/^&_#@]/, 'operator'],
+
+                // Numbers
+                [/\d*\.\d+([eE][-+]?\d+)?/, 'number.float'],
+                [/\d+/, 'number'],
+
+                // Whitespace
+                [/[ \t\r\n]+/, 'white'],
+            ],
+
+            math: [
+                [/\\./, 'keyword.math'],
+                [/[^{}\[\]()]+/, 'string.math'],
+                [/[\{\}\[\]()]/, 'delimiter.math'],
+            ],
+        },
+    });
+
+    monaco.languages.setLanguageConfiguration('latex', {
+        comments: {
+            lineComment: '%'
+        },
+        brackets: [
+            ['{', '}'],
+            ['[', ']'],
+            ['(', ')']
+        ],
+        autoClosingPairs: [
+            { open: '{', close: '}' },
+            { open: '[', close: ']' },
+            { open: '(', close: ')' },
+            { open: '`', close: '`' },
+            { open: '“', close: '”' },
+        ],
+        surroundingPairs: [
+            { open: '{', close: '}' },
+            { open: '[', close: ']' },
+            { open: '(', close: ')' }
+        ],
+        // Indentation rules
+        onEnterRules: [
+            {
+                beforeText: /\\begin\{([a-zA-Z*]+)\}/,
+                afterText: /\\end\{\1\}/,
+                action: { indentAction: monaco.languages.IndentAction.IndentOutdent }
+            },
+            {
+                beforeText: /^\s*\\item/,
+                action: { indentAction: monaco.languages.IndentAction.None, appendText: '\\item ' }
+            }
+        ]
+    });
+
+    monacoEditor = monaco.editor.create(document.getElementById('latexEditor'), {
+        value: '',
+        language: 'latex',
+        theme: 'vs-dark',
+        automaticLayout: true,
+        minimap: { enabled: true },
+        fontSize: 14,
+        scrollBeyondLastLine: false,
+        wordWrap: 'on'
+    });
+    
     await loadMainTexContent();
-})
+});

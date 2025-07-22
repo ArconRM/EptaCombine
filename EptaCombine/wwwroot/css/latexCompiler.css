@@ -2,3 +2,8 @@
     pointer-events: none;
     opacity: 0.5;
 }
+
+#latexEditor {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
