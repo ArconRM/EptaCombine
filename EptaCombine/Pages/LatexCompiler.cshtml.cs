@@ -24,6 +24,7 @@ public class LatexCompilerModel : PageModel
     
     public void OnGet()
     {
+        Console.WriteLine(HttpContext.Session.GetString("LatexProjectId"));
     }
 
     public async Task<IActionResult> OnPostUploadAsync([FromForm] IFormFile zipFile, CancellationToken token)

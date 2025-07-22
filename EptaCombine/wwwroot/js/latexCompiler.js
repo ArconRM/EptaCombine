@@ -102,9 +102,10 @@ async function loadMainTexContent() {
 
         const result = await res.json();
         latexEditor.value = result.content;
+        setZipControlsEnabled(false);
     } catch (err) {
         console.error("Error loading main.tex:", err);
-        showToast(`Ошибка при скачивании .tex:`, false);
+        // showToast(`Ошибка при скачивании .tex:`, false);
     }
 }
 
@@ -191,12 +192,6 @@ deleteZipBtn.addEventListener('click', async () => {
     }
 });
 
-// window.addEventListener('beforeunload', function() {
-//     try {
-//         const formData = new FormData();
-//         formData.append('__RequestVerificationToken', token);
-//         navigator.sendBeacon(urls.cleanup, formData);
-//     } catch (err) {
-//         console.error("Cleanup error:", err);
-//     }
-// });
+window.addEventListener('load', async () => {
+    await loadMainTexContent();
+})
