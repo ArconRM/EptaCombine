@@ -1,12 +1,16 @@
+using Common.Options;
 using FileConverter.Repository;
 using FileConverter.Repository.Interfaces;
 using FileConverter.Service;
 using FileConverter.Service.Interfaces;
 using Microsoft.AspNetCore.Http.Features;
 
-const long maxFileSize = 1_048_576_000; // 1 GB
-
 var builder = WebApplication.CreateBuilder(args);
+
+var maxFileSize = builder.Configuration
+    .GetSection("FileUpload")
+    .Get<FileUploadOptions>()
+    .MaxFileSize;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

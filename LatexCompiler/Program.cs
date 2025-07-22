@@ -1,3 +1,4 @@
+using Common.Options;
 using LatexCompiler.Options;
 using LatexCompiler.Repository;
 using LatexCompiler.Repository.Interfaces;
@@ -5,10 +6,14 @@ using LatexCompiler.Service;
 using LatexCompiler.Service.Interfaces;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
-
-const long maxFileSize = 1_048_576_000; // 1 GB
+using SessionOptions = Common.Options.SessionOptions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var maxFileSize = builder.Configuration
+    .GetSection("FileUpload")
+    .Get<FileUploadOptions>()
+    .MaxFileSize;
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -37,7 +42,10 @@ builder.Services.Configure<FormOptions>(options =>
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.IdleTimeout = builder.Configuration
+        .GetSection("Session")
+        .Get<SessionOptions>()
+        .IdleTimeout;
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

@@ -1,18 +1,26 @@
+using Common.Options;
 using EptaCombine.HttpService;
 using FileConverter.Service.Interfaces;
 using LatexCompiler.Service.Interfaces;
 using Microsoft.AspNetCore.Http.Features;
-
-const long maxFileSize = 1_048_576_000; // 1 GB
+using SessionOptions = Common.Options.SessionOptions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var maxFileSize = builder.Configuration
+    .GetSection("FileUpload")
+    .Get<FileUploadOptions>()
+    .MaxFileSize;
 
 builder.Services.AddRazorPages();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.IdleTimeout = builder.Configuration
+        .GetSection("Session")
+        .Get<SessionOptions>()
+        .IdleTimeout;
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
