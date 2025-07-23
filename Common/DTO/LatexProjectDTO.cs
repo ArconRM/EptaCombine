@@ -6,5 +6,5 @@ public class LatexProjectDTO
 
     public DateTime CreatedAt { get; set; }
 
-    public string ProjectDirectoryName { get; set; }
+    public string ProjectDirectory { get; set; }
 }

@@ -40,9 +40,15 @@ public class LatexCompilerModel : PageModel
         return new JsonResult(new { content });
     }
 
-    public async Task<IActionResult> OnPostSaveMainTexAsync([FromBody] LatexContentRequest contentRequest, CancellationToken token)
+    public async Task<IActionResult> OnPostSaveProjectAsync(
+        [FromBody] LatexContentUpdateRequest contentUpdateRequest,
+        CancellationToken token)
     {
-        await _latexCompilerService.UpdateMainTexAsync(HttpContext.Session, contentRequest.Content, token);
+        await _latexCompilerService.UpdateProjectAsync(
+            HttpContext.Session, 
+            contentUpdateRequest.TexContent,
+            contentUpdateRequest.BibContent,
+            token);
         return new JsonResult(new { success = true });
     }
 

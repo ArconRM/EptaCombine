@@ -41,13 +41,21 @@ public class LatexCompilingRepository : ILatexCompilingRepository
             var texFiles = Directory.GetFiles(tempDir, "*.tex", SearchOption.AllDirectories);
             if (!texFiles.Any())
                 throw new InvalidOperationException("No .tex files found in archive");
-
-            var mainTex = texFiles.FirstOrDefault(f => 
+            var mainTexFile = texFiles.FirstOrDefault(f => 
                 Path.GetFileName(f).Equals("main.tex", StringComparison.OrdinalIgnoreCase)) ?? texFiles.First();
+            var mainTexName = Path.GetFileName(mainTexFile);
 
-            var workDir = Path.GetDirectoryName(mainTex);
+            var workDir = Path.GetDirectoryName(mainTexFile);
+            
+            var bibFiles = Directory.GetFiles(workDir, "*.bib", SearchOption.AllDirectories);
+            if (!bibFiles.Any())
+                throw new InvalidOperationException("No bib files found in archive");
+            var mainBibName = Path.GetFileName(bibFiles.FirstOrDefault(f => 
+                Path.GetFileName(f).Equals("thesis.bib", StringComparison.OrdinalIgnoreCase)) ?? bibFiles.First());
 
-            project.ProjectDirectoryName = workDir;
+            project.ProjectDirectory = workDir;
+            project.MainTexName = mainTexName;
+            project.MainBibName = mainBibName;
 
             return project;
         }
@@ -65,15 +73,26 @@ public class LatexCompilingRepository : ILatexCompilingRepository
         return mainTexContent;
     }
 
+    public async Task<string> GetMainBibContentAsync(LatexProject project, CancellationToken token)
+    {
+        var mainBibContent = await File.ReadAllTextAsync(project.MainBibPath, token);
+        return mainBibContent;
+    }
+
     public async Task UpdateMainTexAsync(LatexProject project, string content, CancellationToken token)
     {
         await File.WriteAllTextAsync(project.MainTexPath, content, token);
     }
 
+    public async Task UpdateMainBibAsync(LatexProject project, string content, CancellationToken token)
+    {
+        await File.WriteAllTextAsync(project.MainBibPath, content, token);
+    }
+
     public async Task<Stream> CompileAsync(LatexProject project, CancellationToken token)
     {try
         {
-            CleanBuildArtifacts(project.ProjectDirectoryName);
+            CleanBuildArtifacts(project.ProjectDirectory);
 
             var psi = new ProcessStartInfo
             {
@@ -84,8 +103,8 @@ public class LatexCompilingRepository : ILatexCompilingRepository
                             $"-pdf " +
                             $"-f " +
                             $"-g " +
-                            $"-outdir=\"{project.ProjectDirectoryName}\" \"{Path.GetFileName(project.MainTexPath)}\"",
-                WorkingDirectory = project.ProjectDirectoryName,
+                            $"-outdir=\"{project.ProjectDirectory}\" \"{Path.GetFileName(project.MainTexPath)}\"",
+                WorkingDirectory = project.ProjectDirectory,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -98,7 +117,7 @@ public class LatexCompilingRepository : ILatexCompilingRepository
             var output = await proc.StandardOutput.ReadToEndAsync(token);
             var error = await proc.StandardError.ReadToEndAsync(token);
 
-            var pdfPath = Path.Combine(project.ProjectDirectoryName, Path.GetFileNameWithoutExtension(project.MainTexPath) + ".pdf");
+            var pdfPath = Path.Combine(project.ProjectDirectory, Path.GetFileNameWithoutExtension(project.MainTexPath) + ".pdf");
             
             if (!File.Exists(pdfPath))
             {
@@ -134,7 +153,16 @@ public class LatexCompilingRepository : ILatexCompilingRepository
 
     public void Delete(LatexProject project)
     {
-        if (Directory.Exists(project.ProjectDirectoryName))
-            Directory.Delete(project.ProjectDirectoryName, true);
+        var dir = new DirectoryInfo(project.ProjectDirectory);
+
+        while (dir != null && !Equals(dir.Name, project.Uuid.ToString()))
+        {
+            dir = dir.Parent;
+        }
+
+        if (dir != null && Directory.Exists(dir.FullName))
+            Directory.Delete(dir.FullName, true);
+        else if (Directory.Exists(project.ProjectDirectory))
+            Directory.Delete(project.ProjectDirectory, true);
     }
 }

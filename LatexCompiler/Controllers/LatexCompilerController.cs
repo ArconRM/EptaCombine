@@ -54,23 +54,47 @@ public class LatexCompilerController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to retrieve main.tex content.");
-            return StatusCode(500, "Internal server error while reading main.tex.");
+            _logger.LogError(ex, "Failed to retrieve .bib content.");
+            return StatusCode(500, "Internal server error while reading .bib.");
         }
     }
+    
 
-    [HttpPost(nameof(UpdateMainTex))]
-    public async Task<IActionResult> UpdateMainTex([FromBody] LatexContentRequest contentRequest, CancellationToken token)
+    [HttpGet(nameof(GetMainBibContent))]
+    public async Task<IActionResult> GetMainBibContent(Guid projectUuid, CancellationToken token)
     {
         try
         {
-            await _latexService.UpdateMainTexAsync(contentRequest.ProjectUuid, contentRequest.Content, token);
-            return Ok("main.tex updated.");
+            string content = await _latexService.GetMainBibContentAsync(projectUuid, token);
+            return Ok(content);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to update main.tex.");
-            return StatusCode(500, "Internal server error while updating main.tex.");
+            _logger.LogError(ex, "Failed to retrieve .bib content.");
+            return StatusCode(500, "Internal server error while reading .bib.");
+        }
+    }
+
+    [HttpPost(nameof(UpdateProject))]
+    public async Task<IActionResult> UpdateProject(
+        [FromBody] LatexContentUpdateRequest contentUpdateRequest, 
+        CancellationToken token)
+    {
+        try
+        {
+            await _latexService.UpdateProject(
+                contentUpdateRequest.ProjectUuid,
+                contentUpdateRequest.TexContent,
+                contentUpdateRequest.BibContent,
+                token);
+            return Ok("project updated.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Failed to update project.");
+            return StatusCode(500,
+                "Internal server error while updating project.");
         }
     }
 

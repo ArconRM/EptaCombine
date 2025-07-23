@@ -48,17 +48,18 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
         return await response.Content.ReadAsStringAsync(token);
     }
 
-    public async Task UpdateMainTexAsync(ISession session, string content, CancellationToken token)
+    public async Task UpdateProjectAsync(ISession session, string texContent, string bibContent, CancellationToken token)
     {
         var uuid = GetProjectUuidFromSession(session);
 
-        var request = new LatexContentRequest
+        var request = new LatexContentUpdateRequest()
         {
             ProjectUuid = uuid,
-            Content = content
+            TexContent = texContent,
+            BibContent = bibContent
         };
 
-        var response = await _httpClient.PostAsJsonAsync("api/latexcompiler/UpdateMainTex", request, _jsonSerializerOptions, token);
+        var response = await _httpClient.PostAsJsonAsync("api/latexcompiler/UpdateProject", request, _jsonSerializerOptions, token);
         await EnsureSuccessStatusCode(response, token);
     }
 

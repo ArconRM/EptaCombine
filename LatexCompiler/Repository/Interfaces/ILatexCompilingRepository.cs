@@ -9,7 +9,11 @@ public interface ILatexCompilingRepository
     
     Task<string> GetMainTexContentAsync(LatexProject project, CancellationToken token);
     
+    Task<string> GetMainBibContentAsync(LatexProject project, CancellationToken token);
+    
     Task UpdateMainTexAsync(LatexProject project, string content, CancellationToken token);
+    
+    Task UpdateMainBibAsync(LatexProject project, string content, CancellationToken token);
     
     Task<Stream> CompileAsync(LatexProject project, CancellationToken token);
     

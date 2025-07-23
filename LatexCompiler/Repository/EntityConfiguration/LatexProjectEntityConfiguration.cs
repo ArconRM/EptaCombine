@@ -10,7 +10,7 @@ public class LatexProjectEntityConfiguration: IEntityTypeConfiguration<LatexProj
     {
         builder.HasKey(lp => lp.Uuid);
         
-        // builder.Property(lp => lp.Uuid)
-        //     .ValueGeneratedOnAdd();
+        builder.Property(lp => lp.Uuid)
+            .ValueGeneratedNever();
     }
 }

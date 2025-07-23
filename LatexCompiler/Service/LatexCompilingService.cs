@@ -22,8 +22,6 @@ public class LatexCompilingService : ILatexCompilingService
     public async Task<LatexProject> UploadAsync(Stream zipStream, CancellationToken token)
     {
         var project = _latexCompilingRepository.SaveProjectFromZip(zipStream);
-        project.Uuid = Guid.NewGuid();
-        
         await _latexProjectRepository.CreateAsync(project, token);
         
         return project;
@@ -36,13 +34,20 @@ public class LatexCompilingService : ILatexCompilingService
         return await _latexCompilingRepository.GetMainTexContentAsync(project, token);
     }
 
-    public async Task UpdateMainTexAsync(Guid projectUuid, string content, CancellationToken token)
+    public async Task<string> GetMainBibContentAsync(Guid projectUuid, CancellationToken token)
     {
         var project = await GetProjectAsync(projectUuid, token);
         
-        await _latexCompilingRepository.UpdateMainTexAsync(project, content, token);
+        return await _latexCompilingRepository.GetMainBibContentAsync(project, token);
     }
 
+    public async Task UpdateProject(Guid projectUuid, string texContent, string bibContent, CancellationToken token)
+    {
+        var project = await GetProjectAsync(projectUuid, token);
+        await _latexCompilingRepository.UpdateMainTexAsync(project, texContent, token);
+        await _latexCompilingRepository.UpdateMainBibAsync(project, bibContent, token);
+    }
+    
     public async Task<Stream> CompileAsync(Guid projectUuid, CancellationToken token)
     {
         var project = await GetProjectAsync(projectUuid, token);

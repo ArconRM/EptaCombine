@@ -130,7 +130,7 @@ async function loadMainTexContent() {
         monacoEditor.setValue(result.content);
         setZipControlsEnabled(false);
     } catch (err) {
-        console.error("Error loading main.tex:", err);
+        console.error("Error loading .tex:", err);
         // showToast(`Ошибка при скачивании .tex:`, false);
     }
 }
@@ -144,7 +144,7 @@ saveBtn.addEventListener('click', async function () {
                 "RequestVerificationToken": token,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({content: monacoEditor.getValue()})
+            body: JSON.stringify({texContent: monacoEditor.getValue(), bibContent: ""})
         });
 
         if (!res.ok) {

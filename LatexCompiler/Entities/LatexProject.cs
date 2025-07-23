@@ -9,7 +9,13 @@ public class LatexProject: IEntity
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
-    public string ProjectDirectoryName { get; set; }
+    public string ProjectDirectory { get; set; }
+
+    public string MainTexName { get; set; }
+
+    public string MainBibName { get; set; }
     
-    public string MainTexPath => Path.Combine(ProjectDirectoryName, "main.tex");
+    public string MainTexPath => Path.Combine(ProjectDirectory, MainTexName);
+
+    public string MainBibPath => Path.Combine(ProjectDirectory, MainBibName);
 }

@@ -8,7 +8,7 @@ public interface ILatexCompilingHttpService
     
     Task<string> GetMainTexContentAsync(ISession session, CancellationToken token);
     
-    Task UpdateMainTexAsync(ISession session, string content, CancellationToken token);
+    Task UpdateProjectAsync(ISession session, string texContent, string bibContent, CancellationToken token);
     
     Task<Stream> CompileAsync(ISession session, CancellationToken token);
     
