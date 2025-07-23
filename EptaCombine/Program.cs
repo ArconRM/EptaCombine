@@ -28,13 +28,13 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpClient<IFileConversionHttpService, FileConversionHttpService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5193/");
+    client.BaseAddress = new Uri("https://localhost:7166/");
     client.Timeout = TimeSpan.FromMinutes(10);
 });
 
 builder.Services.AddHttpClient<ILatexCompilingHttpService, LatexCompilingHttpService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5062/");
+    client.BaseAddress = new Uri("https://localhost:7294/");
     client.Timeout = TimeSpan.FromMinutes(10);
 });
 
