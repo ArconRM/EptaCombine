@@ -4,10 +4,14 @@ let monacoEditor;
 const zipFileInput = document.getElementById('zipFile');
 const saveBtn = document.getElementById('saveBtn');
 const compileBtn = document.getElementById('compileBtn');
+const togglePdfBtn = document.getElementById("togglePdfBtn");
 const deleteZipBtn = document.getElementById('deleteZipBtn');
 const pdfViewer = document.getElementById('pdfViewer');
 const downloadPdfBtn = document.getElementById('downloadPdfBtn')
 const toastBox = document.getElementById('toastBox');
+const pdfContainer = document.getElementById("pdfContainer");
+const editorColumn = document.getElementById("editorColumn");
+
 
 // Get URLs from data attributes
 const container = document.getElementById('latexCompilerContainer');
@@ -59,8 +63,17 @@ function setZipControlsEnabled(enabled) {
     document.getElementById('deleteZipBtn').disabled = enabled;
 }
 
+function setPdfVisibility(show) {
+    if (show) {
+        pdfContainer.classList.remove("d-none");
+        editorColumn.style.width = "66.6667%";
+    } else {
+        pdfContainer.classList.add("d-none");
+        editorColumn.style.width = "100%";
+    }
+}
 
-zipFileInput.addEventListener('change', async function() {
+zipFileInput.addEventListener('change', async function () {
     setUIBusy("Загрузка файла...");
     const file = this.files[0];
     if (!file) return;
@@ -123,7 +136,7 @@ async function loadMainTexContent() {
 }
 
 // Save content
-saveBtn.addEventListener('click', async function() {
+saveBtn.addEventListener('click', async function () {
     try {
         const res = await fetch(urls.saveMainTex, {
             method: "POST",
@@ -131,7 +144,7 @@ saveBtn.addEventListener('click', async function() {
                 "RequestVerificationToken": token,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ content: monacoEditor.getValue() })
+            body: JSON.stringify({content: monacoEditor.getValue()})
         });
 
         if (!res.ok) {
@@ -149,7 +162,7 @@ saveBtn.addEventListener('click', async function() {
 });
 
 // Compile to PDF
-compileBtn.addEventListener('click', async function() {
+compileBtn.addEventListener('click', async function () {
     setUIBusy("Компиляция...");
     try {
         // First save the content
@@ -171,7 +184,7 @@ compileBtn.addEventListener('click', async function() {
         const url = URL.createObjectURL(blob);
         pdfViewer.src = url;
         showToast('PDF скомпилирован успешно');
-
+        setPdfVisibility(true);
         downloadPdfBtn.href = url;
     } catch (err) {
         console.error("Compile error:", err);
@@ -205,11 +218,18 @@ deleteZipBtn.addEventListener('click', async () => {
     }
 });
 
-window.require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+
+togglePdfBtn.addEventListener("click", () => {
+    const isHidden = pdfContainer.classList.contains("d-none");
+    setPdfVisibility(isHidden);
+});
+
+
+window.require.config({paths: {vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs'}});
 
 window.require(['vs/editor/editor.main'], async () => {
     // --- 1. Register a new language ---
-    monaco.languages.register({ id: 'latex' });
+    monaco.languages.register({id: 'latex'});
 
     // --- 2. Define the Monarch tokenizer for LaTeX syntax highlighting ---
     monaco.languages.setMonarchTokensProvider('latex', {
@@ -285,27 +305,27 @@ window.require(['vs/editor/editor.main'], async () => {
             ['(', ')']
         ],
         autoClosingPairs: [
-            { open: '{', close: '}' },
-            { open: '[', close: ']' },
-            { open: '(', close: ')' },
-            { open: '`', close: '`' },
-            { open: '“', close: '”' },
+            {open: '{', close: '}'},
+            {open: '[', close: ']'},
+            {open: '(', close: ')'},
+            {open: '`', close: '`'},
+            {open: '“', close: '”'},
         ],
         surroundingPairs: [
-            { open: '{', close: '}' },
-            { open: '[', close: ']' },
-            { open: '(', close: ')' }
+            {open: '{', close: '}'},
+            {open: '[', close: ']'},
+            {open: '(', close: ')'}
         ],
         // Indentation rules
         onEnterRules: [
             {
                 beforeText: /\\begin\{([a-zA-Z*]+)\}/,
                 afterText: /\\end\{\1\}/,
-                action: { indentAction: monaco.languages.IndentAction.IndentOutdent }
+                action: {indentAction: monaco.languages.IndentAction.IndentOutdent}
             },
             {
                 beforeText: /^\s*\\item/,
-                action: { indentAction: monaco.languages.IndentAction.None, appendText: '\\item ' }
+                action: {indentAction: monaco.languages.IndentAction.None, appendText: '\\item '}
             }
         ]
     });
@@ -315,11 +335,11 @@ window.require(['vs/editor/editor.main'], async () => {
         language: 'latex', // Use the newly registered language
         theme: 'vs-dark',
         automaticLayout: true,
-        minimap: { enabled: true },
+        minimap: {enabled: true},
         fontSize: 14,
         scrollBeyondLastLine: false,
         wordWrap: 'on' // Enable word wrapping for better readability
     });
-    
+
     await loadMainTexContent();
 });
