@@ -1,5 +1,5 @@
 // Get elements
-let monacoEditor;
+let texEditor, bibEditor;
 
 const zipFileInput = document.getElementById('zipFile');
 const saveBtn = document.getElementById('saveBtn');
@@ -18,7 +18,8 @@ const container = document.getElementById('latexCompilerContainer');
 const urls = {
     upload: container.dataset.uploadUrl,
     getMainTex: container.dataset.getMainTexUrl,
-    saveMainTex: container.dataset.saveMainTexUrl,
+    getMainBib: container.dataset.getMainBibUrl,
+    saveProject: container.dataset.saveProjectUrl,
     compile: container.dataset.compileUrl,
     cleanup: container.dataset.cleanupUrl
 };
@@ -31,6 +32,11 @@ window.addEventListener('load', () => {
         window.bootstrapToast = new bootstrap.Toast(toastBox);
     }
 });
+
+function getActiveEditor() {
+    const activeTabId = document.querySelector('.nav-link.active')?.getAttribute('data-bs-target');
+    return activeTabId === '#texEditor' ? texEditor : bibEditor;
+}
 
 function showToast(message, isSuccess = true) {
     const toastBody = toastBox.querySelector('.toast-body');
@@ -127,7 +133,29 @@ async function loadMainTexContent() {
         }
 
         const result = await res.json();
-        monacoEditor.setValue(result.content);
+        texEditor.setValue(result.content);
+        setZipControlsEnabled(false);
+    } catch (err) {
+        console.error("Error loading .tex:", err);
+        // showToast(`Ошибка при скачивании .tex:`, false);
+    }
+}
+async function loadMainBibContent() {
+    try {
+        const res = await fetch(urls.getMainBib, {
+            method: "POST",
+            headers: {
+                "RequestVerificationToken": token,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) {
+            throw new Error(await res.text());
+        }
+
+        const result = await res.json();
+        bibEditor.setValue(result.content);
         setZipControlsEnabled(false);
     } catch (err) {
         console.error("Error loading .tex:", err);
@@ -138,13 +166,13 @@ async function loadMainTexContent() {
 // Save content
 saveBtn.addEventListener('click', async function () {
     try {
-        const res = await fetch(urls.saveMainTex, {
+        const res = await fetch(urls.saveProject, {
             method: "POST",
             headers: {
                 "RequestVerificationToken": token,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({texContent: monacoEditor.getValue(), bibContent: ""})
+            body: JSON.stringify({texContent: texEditor.getValue(), bibContent: bibEditor.getValue()})
         });
 
         if (!res.ok) {
@@ -208,7 +236,8 @@ deleteZipBtn.addEventListener('click', async () => {
 
         showToast("ZIP удален");
         setZipControlsEnabled(true);
-        monacoEditor.setValue('');
+        texEditor.setValue('');
+        bibEditor.setValue('');
         pdfViewer.src = '';
         zipFileInput.value = '';
     } catch (err) {
@@ -330,7 +359,18 @@ window.require(['vs/editor/editor.main'], async () => {
         ]
     });
 
-    monacoEditor = monaco.editor.create(document.getElementById('latexEditor'), {
+    texEditor = monaco.editor.create(document.getElementById('texEditor'), {
+        value: '',
+        language: 'latex', // Use the newly registered language
+        theme: 'vs-dark',
+        automaticLayout: true,
+        minimap: {enabled: true},
+        fontSize: 14,
+        scrollBeyondLastLine: false,
+        wordWrap: 'on' // Enable word wrapping for better readability
+    });
+
+    bibEditor = monaco.editor.create(document.getElementById('bibEditor'), {
         value: '',
         language: 'latex', // Use the newly registered language
         theme: 'vs-dark',
@@ -342,4 +382,5 @@ window.require(['vs/editor/editor.main'], async () => {
     });
 
     await loadMainTexContent();
+    await loadMainBibContent();
 });

@@ -48,6 +48,15 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
         return await response.Content.ReadAsStringAsync(token);
     }
 
+    public async Task<string> GetMainBibContentAsync(ISession session, CancellationToken token)
+    {
+        var uuid = GetProjectUuidFromSession(session);
+        var response = await _httpClient.GetAsync($"api/latexcompiler/GetMainBibContent?projectUuid={uuid}", token);
+        await EnsureSuccessStatusCode(response, token);
+        
+        return await response.Content.ReadAsStringAsync(token);
+    }
+
     public async Task UpdateProjectAsync(ISession session, string texContent, string bibContent, CancellationToken token)
     {
         var uuid = GetProjectUuidFromSession(session);

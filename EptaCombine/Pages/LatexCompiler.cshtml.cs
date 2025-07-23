@@ -39,6 +39,13 @@ public class LatexCompilerModel : PageModel
         var content = await _latexCompilerService.GetMainTexContentAsync(HttpContext.Session, token);
         return new JsonResult(new { content });
     }
+    
+
+    public async Task<IActionResult> OnPostGetMainBibAsync(CancellationToken token)
+    {
+        var content = await _latexCompilerService.GetMainBibContentAsync(HttpContext.Session, token);
+        return new JsonResult(new { content });
+    }
 
     public async Task<IActionResult> OnPostSaveProjectAsync(
         [FromBody] LatexContentUpdateRequest contentUpdateRequest,
