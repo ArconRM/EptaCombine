@@ -9,8 +9,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj" />
-      <ProjectReference Include="..\FileConverter\FileConverter.csproj" />
-      <ProjectReference Include="..\LatexCompiler\LatexCompiler.csproj" />
     </ItemGroup>
 
     <ItemGroup>

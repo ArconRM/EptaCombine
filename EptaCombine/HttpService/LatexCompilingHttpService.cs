@@ -3,8 +3,6 @@ using System.Text;
 using System.Text.Json;
 using Common.DTO;
 using EptaCombine.HttpService.Interfaces;
-using LatexCompiler.Entities;
-using LatexCompiler.Service.Interfaces;
 
 namespace EptaCombine.HttpService;
 
