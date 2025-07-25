@@ -27,11 +27,6 @@
         </button>
     </div>
 
-    <!-- Прогресс -->
-    <div id="progress-section" class="alert alert-info text-center d-none">
-        ⏳ Обработка файла, пожалуйста, подождите (3 дня)...
-    </div>
-
     <!-- Скачивание -->
     <div id="result-section" class="card text-center p-4 d-none fade-in border-success border-2">
         <p class="mb-3 text-success fw-semibold">✅ Операция завершена!</p>
@@ -44,6 +39,29 @@
             <div class="d-flex">
                 <div class="toast-body">✅ Хз зачем она щас появилась</div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div id="overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
+     style="z-index: 1050; background-color: rgba(0, 0, 0, 0.5);">
+    <!-- Video Background -->
+    <video
+        id="overlay-video"
+        class="overlay-video"
+        autoplay
+        muted
+        playsinline
+        loop
+    >
+        <source src="/media/bobek.mp4" type="video/mp4">
+    </video>
+
+    <!-- Spinner & Message -->
+    <div class="d-flex justify-content-center align-items-center h-100 position-relative">
+        <div class="text-white text-center">
+            <div class="spinner-border text-light mb-3" role="status"></div>
+            <div id="overlayMessage" class="fs-5 fw-semibold"></div>
         </div>
     </div>
 </div>

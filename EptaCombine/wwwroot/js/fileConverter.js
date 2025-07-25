@@ -6,6 +6,24 @@ function showToast(message, isSuccess = true) {
     window.bootstrapToast.show();
 }
 
+function setUIBusy(message) {
+    const overlay = document.getElementById('overlay');
+    const video = document.getElementById('overlay-video');
+
+    overlay.classList.remove('d-none');
+    document.getElementById('overlayMessage').textContent = message;
+
+    video.currentTime = 0;
+    video.play().catch(e => console.log("Video play blocked:", e));
+}
+
+function clearUIBusy() {
+    const overlay = document.getElementById('overlay');
+    overlay.classList.add('d-none');
+
+    document.getElementById('overlay-video').pause();
+}
+
 window.addEventListener('load', () => {
     const toastBox = document.getElementById('toastBox');
     if (toastBox) {
@@ -23,6 +41,7 @@ document.getElementById('uploadFile').addEventListener('change', async function 
     const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
     try {
+        setUIBusy("Загрузка...");
         const res = await fetch("/FileConverter?handler=AnalyzeFile", {
             method: "POST",
             headers: {
@@ -32,6 +51,7 @@ document.getElementById('uploadFile').addEventListener('change', async function 
         });
 
         if (!res.ok) {
+            clearUIBusy();
             const error = await res.text();
             console.error("Error from backend:", error);
             showToast("Ошибка загрузки", false)
@@ -53,10 +73,12 @@ document.getElementById('uploadFile').addEventListener('change', async function 
             select.appendChild(opt);
         });
 
+        clearUIBusy();
         document.getElementById("format-section").classList.remove("d-none");
         document.getElementById("result-section").classList.add("d-none");
         showToast("Файл загружен успешно")
     } catch (err) {
+        clearUIBusy();
         console.error("JS exception:", err);
         showToast("Ошибка загрузки", false)
     }
@@ -77,7 +99,7 @@ document.getElementById('convertBtn').addEventListener('click', async function (
 
     const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-    document.getElementById("progress-section").classList.remove("d-none");
+    setUIBusy("Конвертация...");
     document.getElementById("result-section").classList.add("d-none");
 
     const formData = new FormData();
@@ -94,6 +116,7 @@ document.getElementById('convertBtn').addEventListener('click', async function (
         });
 
         if (!response.ok) {
+            clearUIBusy();
             const error = await response.text();
             console.error("Conversion failed:", error);
             showToast("Ошибка конвертации", false)
@@ -118,11 +141,12 @@ document.getElementById('convertBtn').addEventListener('click', async function (
         downloadLink.href = downloadUrl;
         downloadLink.download = filename;
 
-        document.getElementById("progress-section").classList.add("d-none");
         document.getElementById("result-section").classList.remove("d-none");
+        clearUIBusy();
         showToast("Конвертация прошла успешно")
 
     } catch (err) {
+        clearUIBusy();
         console.error("JS exception during convert:", err);
         showToast("Ошибка конвертации", false)
     }
