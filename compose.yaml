@@ -4,23 +4,27 @@
       context: .
       dockerfile: EptaCombine/Dockerfile
     ports:
-      - "5000:80"
+      - "5000:8080"
     depends_on:
       - fileconverter
+    volumes:
+      - aspnet-data:/usr/share/aspnet/DataProtection-Keys
+    environment:
+      - ASPNETCORE_DATA_PROTECTION__KEY_RING_PATH=/usr/share/aspnet/DataProtection-Keys
 
   fileconverter:
     build:
       context: .
       dockerfile: FileConverter/Dockerfile
     ports:
-      - "5001:80"
+      - "5001:8080"
   
   latexcompiler:
     build:
       context: .
       dockerfile: LatexCompiler/Dockerfile
     ports:
-      - "5002:80"
+      - "5002:8080"
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=LatexCompilerDatabase;Username=eptauser;Password=qWbYhFF6
     depends_on:
@@ -39,3 +43,4 @@
 
 volumes:
   postgres_data:
+  aspnet-data:
