@@ -1,3 +1,18 @@
+function showToast(message, isSuccess = true) {
+    const toastBody = toastBox.querySelector('.toast-body');
+    toastBody.textContent = message;
+    toastBox.className = 'toast align-items-center text-white border-0';
+    toastBox.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+    window.bootstrapToast.show();
+}
+
+window.addEventListener('load', () => {
+    const toastBox = document.getElementById('toastBox');
+    if (toastBox) {
+        window.bootstrapToast = new bootstrap.Toast(toastBox);
+    }
+});
+
 document.getElementById('uploadFile').addEventListener('change', async function () {
     const file = this.files[0];
     if (!file) return;
@@ -19,7 +34,7 @@ document.getElementById('uploadFile').addEventListener('change', async function 
         if (!res.ok) {
             const error = await res.text();
             console.error("Error from backend:", error);
-            window.location.href = "/Error";
+            showToast("Ошибка загрузки", false)
             return;
         }
 
@@ -40,9 +55,10 @@ document.getElementById('uploadFile').addEventListener('change', async function 
 
         document.getElementById("format-section").classList.remove("d-none");
         document.getElementById("result-section").classList.add("d-none");
+        showToast("Файл загружен успешно")
     } catch (err) {
         console.error("JS exception:", err);
-        window.location.href = "/Error";
+        showToast("Ошибка загрузки", false)
     }
 });
 
@@ -80,7 +96,7 @@ document.getElementById('convertBtn').addEventListener('click', async function (
         if (!response.ok) {
             const error = await response.text();
             console.error("Conversion failed:", error);
-            window.location.href = "/Error";
+            showToast("Ошибка конвертации", false)
             return;
         }
 
@@ -104,9 +120,10 @@ document.getElementById('convertBtn').addEventListener('click', async function (
 
         document.getElementById("progress-section").classList.add("d-none");
         document.getElementById("result-section").classList.remove("d-none");
+        showToast("Конвертация прошла успешно")
 
     } catch (err) {
         console.error("JS exception during convert:", err);
-        window.location.href = "/Error";
+        showToast("Ошибка конвертации", false)
     }
 });
