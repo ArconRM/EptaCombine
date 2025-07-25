@@ -107,6 +107,7 @@ zipFileInput.addEventListener('change', async function () {
         if (result.success) {
             showToast('ZIP файл успешно загружен');
             await loadMainTexContent();
+            await loadMainBibContent();
         }
     } catch (err) {
         console.error("JS exception:", err);
@@ -181,7 +182,7 @@ saveBtn.addEventListener('click', async function () {
 
         const result = await res.json();
         if (result.success) {
-            showToast('Файл успешно сохранен');
+            showToast('Успешно сохранено');
         }
     } catch (err) {
         console.error("Save error:", err);
@@ -361,24 +362,24 @@ window.require(['vs/editor/editor.main'], async () => {
 
     texEditor = monaco.editor.create(document.getElementById('texEditor'), {
         value: '',
-        language: 'latex', // Use the newly registered language
+        language: 'latex',
         theme: 'vs-dark',
         automaticLayout: true,
         minimap: {enabled: true},
         fontSize: 14,
         scrollBeyondLastLine: false,
-        wordWrap: 'on' // Enable word wrapping for better readability
+        wordWrap: 'on'
     });
 
     bibEditor = monaco.editor.create(document.getElementById('bibEditor'), {
         value: '',
-        language: 'latex', // Use the newly registered language
+        language: 'latex',
         theme: 'vs-dark',
         automaticLayout: true,
         minimap: {enabled: true},
         fontSize: 14,
         scrollBeyondLastLine: false,
-        wordWrap: 'on' // Enable word wrapping for better readability
+        wordWrap: 'on'
     });
 
     await loadMainTexContent();
