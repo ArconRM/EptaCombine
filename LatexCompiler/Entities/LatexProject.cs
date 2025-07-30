@@ -8,6 +8,8 @@ public class LatexProject: IEntity
     public Guid Uuid { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public long UserId { get; set; }
     
     public string ProjectDirectory { get; set; }
 

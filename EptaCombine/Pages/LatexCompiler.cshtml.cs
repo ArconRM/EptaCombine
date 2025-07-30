@@ -1,5 +1,8 @@
 using Common.DTO;
+using EptaCombine.Entities;
 using EptaCombine.HttpService.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,20 +10,29 @@ namespace EptaCombine.Pages;
 
 [DisableRequestSizeLimit]
 [ValidateAntiForgeryToken]
+[Authorize]
 public class LatexCompilerModel : PageModel
 {
     private readonly ILogger<FileConverterModel> _logger;
-    
     private readonly ILatexCompilingHttpService _latexCompilerService;
+    private readonly UserManager<User> _userManager;
 
     public LatexCompilerModel(
-        ILogger<FileConverterModel> logger, 
-        ILatexCompilingHttpService latexCompilerService)
+        ILogger<FileConverterModel> logger,
+        ILatexCompilingHttpService latexCompilerService,
+        UserManager<User> userManager)
     {
         _logger = logger;
         _latexCompilerService = latexCompilerService;
+        _userManager = userManager;
     }
-    
+
+    private async Task<long?> GetCurrentUserIdAsync()
+    {
+        var user = await _userManager.GetUserAsync(User);
+        return user?.Id;
+    }
+
     public void OnGet()
     {
         Console.WriteLine(HttpContext.Session.GetString("LatexProjectId"));
@@ -28,8 +40,12 @@ public class LatexCompilerModel : PageModel
 
     public async Task<IActionResult> OnPostUploadAsync([FromForm] IFormFile zipFile, CancellationToken token)
     {
+        var userId = await GetCurrentUserIdAsync();
+        if (userId is null)
+            return Unauthorized();
+
         await using var stream = zipFile.OpenReadStream();
-        await _latexCompilerService.UploadAsync(stream, HttpContext.Session, token);
+        await _latexCompilerService.UploadAsync(userId.Value, stream, HttpContext.Session, token);
         return new JsonResult(new { success = true });
     }
 
@@ -38,7 +54,7 @@ public class LatexCompilerModel : PageModel
         var content = await _latexCompilerService.GetMainTexContentAsync(HttpContext.Session, token);
         return new JsonResult(new { content });
     }
-    
+
 
     public async Task<IActionResult> OnPostGetMainBibAsync(CancellationToken token)
     {
@@ -51,7 +67,7 @@ public class LatexCompilerModel : PageModel
         CancellationToken token)
     {
         await _latexCompilerService.UpdateProjectAsync(
-            HttpContext.Session, 
+            HttpContext.Session,
             contentUpdateRequest.TexContent,
             contentUpdateRequest.BibContent,
             token);

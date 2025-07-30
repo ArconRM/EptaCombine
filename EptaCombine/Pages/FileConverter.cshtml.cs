@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Common.Entities;
 using Common.Entities.Enums;
 using EptaCombine.HttpService.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,6 +11,7 @@ namespace EptaCombine.Pages;
 
 [DisableRequestSizeLimit]
 [ValidateAntiForgeryToken]
+[Authorize]
 public class FileConverterModel : PageModel
 {
     private readonly ILogger<FileConverterModel> _logger;

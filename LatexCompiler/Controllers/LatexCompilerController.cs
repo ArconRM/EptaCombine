@@ -24,7 +24,7 @@ public class LatexCompilerController : ControllerBase
     }
 
     [HttpPost(nameof(Upload))]
-    public async Task<IActionResult> Upload(IFormFile zipFile, CancellationToken token)
+    public async Task<IActionResult> Upload(long userId, IFormFile zipFile, CancellationToken token)
     {
         try
         {
@@ -33,7 +33,7 @@ public class LatexCompilerController : ControllerBase
 
             using var zipStream = zipFile.OpenReadStream();
 
-            LatexProject project = await _latexService.UploadAsync(zipStream, token);
+            LatexProject project = await _latexService.UploadAsync(userId, zipStream, token);
             LatexProjectDTO projectDTO = _mapper.Map<LatexProjectDTO>(project);
             return Ok(projectDTO);
         }

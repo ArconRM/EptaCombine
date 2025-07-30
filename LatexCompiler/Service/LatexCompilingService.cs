@@ -19,9 +19,9 @@ public class LatexCompilingService : ILatexCompilingService
         _latexProjectRepository = latexProjectRepository;
     }
 
-    public async Task<LatexProject> UploadAsync(Stream zipStream, CancellationToken token)
+    public async Task<LatexProject> UploadAsync(long userId, Stream zipStream, CancellationToken token)
     {
-        var project = _latexCompilingRepository.SaveProjectFromZip(zipStream);
+        var project = _latexCompilingRepository.SaveProjectFromZip(userId, zipStream);
         await _latexProjectRepository.CreateAsync(project, token);
         
         return project;

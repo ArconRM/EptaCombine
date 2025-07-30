@@ -17,11 +17,12 @@ public class LatexCompilingRepository : ILatexCompilingRepository
         _root = options.Value.FullTempPath;
     }
     
-    public LatexProject SaveProjectFromZip(Stream zipStream)
+    public LatexProject SaveProjectFromZip(long userId, Stream zipStream)
     {
         var project = new LatexProject
         {
-            Uuid = Guid.NewGuid()
+            Uuid = Guid.NewGuid(),
+            UserId = userId
         };
             
         var tempDir = Path.Combine(_root, project.Uuid.ToString());

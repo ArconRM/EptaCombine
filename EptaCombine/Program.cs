@@ -1,8 +1,14 @@
 using Common.Options;
+using EptaCombine.Entities;
+using EptaCombine.Entities.Utils;
 using EptaCombine.HttpService;
 using EptaCombine.HttpService.Interfaces;
+using EptaCombine.Repository;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SessionOptions = Common.Options.SessionOptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +24,9 @@ var maxFileSize = builder.Configuration
 
 builder.Services.AddRazorPages();
 
+builder.Services.AddDbContext<EptaCombineContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -27,6 +36,38 @@ builder.Services.AddSession(options =>
         .IdleTimeout;
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddIdentity<User, IdentityRole<long>>(options =>
+    {
+        options.Password.RequiredLength = 6;
+        options.Password.RequireDigit = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
+
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<EptaCombineContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Auth";
+    // options.LogoutPath = "/Account/Logout";
+    // options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+});
+
+builder.Services.TryAddScoped<SignInManager<User>>();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("UserPolicy", policy =>
+        policy.RequireRole(UserRoles.User));
+
+    options.AddPolicy("AdminPolicy", policy =>
+        policy.RequireRole(UserRoles.Admin));
 });
 
 builder.Services.AddHttpClient<IFileConversionHttpService, FileConversionHttpService>(client =>
@@ -68,10 +109,15 @@ if (!string.IsNullOrEmpty(keyRingPath))
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<EptaCombineContext>();
+    dbContext.Database.Migrate();
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

@@ -24,6 +24,23 @@
                             <a class="nav-link text-dark" asp-page="/LatexCompiler">LaTeX</a>
                         </li>
                     </ul>
+                    
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <form method="post" asp-page="/Auth" asp-page-handler="Logout" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                Выйти
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a href="/Auth" class="btn btn-outline-primary btn-sm">
+                            Вход
+                        </a>
+                    }
+
                 </div>
             </div>
         </nav>

@@ -4,7 +4,7 @@ namespace EptaCombine.HttpService.Interfaces;
 
 public interface ILatexCompilingHttpService
 {
-    Task<LatexProjectDTO> UploadAsync(Stream zipStream, ISession session, CancellationToken token);
+    Task<LatexProjectDTO> UploadAsync(long userId, Stream zipStream, ISession session, CancellationToken token);
     
     Task<string> GetMainTexContentAsync(ISession session, CancellationToken token);
     

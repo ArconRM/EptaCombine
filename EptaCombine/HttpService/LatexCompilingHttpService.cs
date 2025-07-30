@@ -17,9 +17,12 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
         _httpClient = httpClient;
     }
 
-    public async Task<LatexProjectDTO> UploadAsync(Stream zipStream, ISession session, CancellationToken token)
+    public async Task<LatexProjectDTO> UploadAsync(long userId, Stream zipStream, ISession session, CancellationToken token)
     {
         using var content = new MultipartFormDataContent();
+        
+        content.Add(new StringContent(userId.ToString()), "userId");
+        
         var streamContent = new StreamContent(zipStream);
         streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
         content.Add(streamContent, "zipFile", "project.zip");
@@ -33,14 +36,13 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
             throw new InvalidOperationException("Failed to deserialize project from API response.");
         }
 
-        session.SetString(SessionKey, project.Uuid.ToString());
         return project;
     }
 
     public async Task<string> GetMainTexContentAsync(ISession session, CancellationToken token)
     {
         var uuid = GetProjectUuidFromSession(session);
-        var response = await _httpClient.GetAsync($"api/latexcompiler/GetMainTexContent?projectUuid={uuid}", token);
+        var response = await _httpClient.GetAsync($"api/LatexCompiler/GetMainTexContent?projectUuid={uuid}", token);
         await EnsureSuccessStatusCode(response, token);
         
         return await response.Content.ReadAsStringAsync(token);
@@ -49,7 +51,7 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
     public async Task<string> GetMainBibContentAsync(ISession session, CancellationToken token)
     {
         var uuid = GetProjectUuidFromSession(session);
-        var response = await _httpClient.GetAsync($"api/latexcompiler/GetMainBibContent?projectUuid={uuid}", token);
+        var response = await _httpClient.GetAsync($"api/LatexCompiler/GetMainBibContent?projectUuid={uuid}", token);
         await EnsureSuccessStatusCode(response, token);
         
         return await response.Content.ReadAsStringAsync(token);
@@ -66,14 +68,14 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
             BibContent = bibContent
         };
 
-        var response = await _httpClient.PostAsJsonAsync("api/latexcompiler/UpdateProject", request, _jsonSerializerOptions, token);
+        var response = await _httpClient.PostAsJsonAsync("api/LatexCompiler/UpdateProject", request, _jsonSerializerOptions, token);
         await EnsureSuccessStatusCode(response, token);
     }
 
     public async Task<Stream> CompileAsync(ISession session, CancellationToken token)
     {
         var uuid = GetProjectUuidFromSession(session);
-        var response = await _httpClient.GetAsync($"api/latexcompiler/Compile?projectUuid={uuid}", token);
+        var response = await _httpClient.GetAsync($"api/LatexCompiler/Compile?projectUuid={uuid}", token);
         await EnsureSuccessStatusCode(response, token);
 
         var resultStream = new MemoryStream();
@@ -85,7 +87,7 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
     public async Task CleanupAsync(ISession session, CancellationToken token)
     {
         var uuid = GetProjectUuidFromSession(session);
-        var requestUri = $"api/latexcompiler/Cleanup?projectUuid={uuid}";
+        var requestUri = $"api/LatexCompiler/Cleanup?projectUuid={uuid}";
         var response = await _httpClient.DeleteAsync(requestUri, token);
         session.Remove(SessionKey);
         await EnsureSuccessStatusCode(response, token);
