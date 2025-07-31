@@ -11,9 +11,11 @@
 <link rel="stylesheet" href="css/latexCompiler.css?v=@DateTime.Now.Ticks"/>
 
 <div id="latexCompilerContainer" class="d-flex flex-column min-vh-100 mb-3"
+     data-user-projects-url="@Url.Page("./LatexCompiler", "UserProjects")"
+     data-select-project-url="@Url.Page("./LatexCompiler", "SelectActiveProject")"
      data-upload-url="@Url.Page("./LatexCompiler", "Upload")"
-     data-get-main-tex-url="@Url.Page("./LatexCompiler", "GetMainTex")"
-     data-get-main-bib-url="@Url.Page("./LatexCompiler", "GetMainBib")"
+     data-get-main-tex-url="@Url.Page("./LatexCompiler", "MainTex")"
+     data-get-main-bib-url="@Url.Page("./LatexCompiler", "MainBib")"
      data-save-project-url="@Url.Page("./LatexCompiler", "SaveProject")"
      data-compile-url="@Url.Page("./LatexCompiler", "Compile")"
      data-cleanup-url="@Url.Page("./LatexCompiler", "Cleanup")">
@@ -21,76 +23,94 @@
     <div>
         <h2 class="text-center mb-4 fw-bold">📄 Редактор LaTeX</h2>
 
-        <!-- Upload Zip -->
-        <div class="card shadow-sm mb-4 p-4 hover-zoom">
-            <label for="zipFile" class="form-label fw-semibold">📦 Загрузите ZIP с проектом:</label>
-            <div class="d-flex gap-2">
-                <input type="file" class="form-control" id="zipFile" accept=".zip"/>
-                <button id="deleteZipBtn" class="btn btn-outline-secondary btn-sm">🗑️</button>
+        <!-- Project Selector -->
+        <div class="card shadow-sm mb-4 p-4 hover-zoom" id="projectSelectionContainer">
+            <h5 class="mb-3 fw-semibold">📁 Выберите проект или загрузите новый:</h5>
+            <div id="userProjectsList" class="list-group mb-3">
+                <!-- JS will fill this -->
             </div>
+            <button class="btn btn-outline-primary btn-sm" id="showUploadBtn">📦 Загрузить новый ZIP</button>
         </div>
 
-        <!-- Editor & Viewer - Fixed Height Container -->
-        <div class="d-flex gap-3" style="min-height: 650px;">
-            <!-- Editor Column -->
-            <div id="editorColumn" class="d-flex flex-column" style="width: 100%;">
-                <div class="card shadow-sm p-3 flex-grow-1 d-flex flex-column">
-                    <!-- Tabs for Editors -->
-                    <ul class="nav nav-tabs mb-2" id="editorTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#editor1"
-                                    type="button" role="tab" aria-controls="texEditor" aria-selected="true">
-                                .tex
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#editor2"
-                                    type="button" role="tab" aria-controls="bibEditor" aria-selected="false">
-                                .bib
-                            </button>
-                        </li>
-                        <li class="ms-auto d-flex align-items-center">
-                            <button id="saveBtn" class="btn btn-outline-success btn-sm me-2 hover-zoom">💾 Сохранить</button>
-                            <button id="compileBtn" class="btn btn-outline-danger btn-sm me-2 hover-zoom">⚙️ Компилировать</button>
-                            <button id="togglePdfBtn" class="btn btn-outline-primary btn-sm hover-zoom">Показать/Скрыть PDF</button>
-                        </li>
-                    </ul>
+        <div id="editorSection" class="d-none">
+            <!-- Upload Zip -->
+            <div class="card shadow-sm mb-4 p-4 hover-zoom">
+                <label for="zipFile" class="form-label fw-semibold">📦 Загрузите ZIP с проектом:</label>
+                <div class="d-flex gap-2">
+                    <input type="file" class="form-control" id="zipFile" accept=".zip"/>
+                    <button id="deleteZipBtn" class="btn btn-outline-secondary btn-sm">🗑️</button>
+                </div>
+            </div>
 
-                    <!-- Editors Tab Content -->
-                    <div class="tab-content flex-grow-1" style="border: 1px solid #ccc;">
-                        <div class="tab-pane fade show active h-100" id="editor1" role="tabpanel" aria-labelledby="tab1-tab">
-                            <div id="texEditor" class="h-100 w-100"></div>
+            <!-- Editor & Viewer - Fixed Height Container -->
+            <div class="d-flex gap-3" style="min-height: 650px;">
+                <!-- Editor Column -->
+                <div id="editorColumn" class="d-flex flex-column" style="width: 100%;">
+                    <div class="card shadow-sm p-3 flex-grow-1 d-flex flex-column">
+                        <!-- Tabs for Editors -->
+                        <ul class="nav nav-tabs mb-2" id="editorTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="tab1-tab" data-bs-toggle="tab"
+                                        data-bs-target="#editor1"
+                                        type="button" role="tab" aria-controls="texEditor" aria-selected="true">
+                                    .tex
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#editor2"
+                                        type="button" role="tab" aria-controls="bibEditor" aria-selected="false">
+                                    .bib
+                                </button>
+                            </li>
+                            <li class="ms-auto d-flex align-items-center">
+                                <button id="saveBtn" class="btn btn-outline-success btn-sm me-2 hover-zoom">💾
+                                    Сохранить
+                                </button>
+                                <button id="compileBtn" class="btn btn-outline-danger btn-sm me-2 hover-zoom">⚙️
+                                    Компилировать
+                                </button>
+                                <button id="togglePdfBtn" class="btn btn-outline-primary btn-sm hover-zoom">
+                                    Показать/Скрыть PDF
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Editors Tab Content -->
+                        <div class="tab-content flex-grow-1" style="border: 1px solid #ccc;">
+                            <div class="tab-pane fade show active h-100" id="editor1" role="tabpanel"
+                                 aria-labelledby="tab1-tab">
+                                <div id="texEditor" class="h-100 w-100"></div>
+                            </div>
+                            <div class="tab-pane fade h-100" id="editor2" role="tabpanel" aria-labelledby="tab2-tab">
+                                <div id="bibEditor" class="h-100 w-100"></div>
+                            </div>
                         </div>
-                        <div class="tab-pane fade h-100" id="editor2" role="tabpanel" aria-labelledby="tab2-tab">
-                            <div id="bibEditor" class="h-100 w-100"></div>
-                        </div>
+                    </div>
+                </div>
+
+                <!-- PDF Column -->
+                <div id="pdfContainer" class="d-flex flex-column" style="width: 33.3333%;">
+                    <div class="card shadow-sm p-3 flex-grow-1">
+                        <iframe id="pdfViewer" class="h-100 w-100"></iframe>
+                    </div>
+                    <div class="card shadow-sm mt-3 hover-zoom">
+                        <a id="downloadPdfBtn"
+                           class="d-block p-3 text-dark text-decoration-none text-center"
+                           href="#"
+                           download="output.pdf">
+                            ⬇️ Скачать PDF
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- PDF Column -->
-            <div id="pdfContainer" class="d-flex flex-column" style="width: 33.3333%;">
-                <div class="card shadow-sm p-3 flex-grow-1">
-                    <iframe id="pdfViewer" class="h-100 w-100"></iframe>
-                </div>
-                <div class="card shadow-sm mt-3 hover-zoom">
-                    <a id="downloadPdfBtn"
-                       class="d-block p-3 text-dark text-decoration-none text-center"
-                       href="#"
-                       download="output.pdf">
-                        ⬇️ Скачать PDF
-                    </a>
-                </div>
-            </div>
-        </div>
 
-
-
-        <!-- Toast -->
-        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-            <div id="toastBox" class="toast align-items-center text-white bg-success border-0" role="alert">
-                <div class="d-flex">
-                    <div class="toast-body">✅ Хз зачем она щас появилась</div>
+            <!-- Toast -->
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                <div id="toastBox" class="toast align-items-center text-white bg-success border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">✅ Хз зачем она щас появилась</div>
+                    </div>
                 </div>
             </div>
         </div>

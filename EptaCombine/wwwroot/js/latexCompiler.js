@@ -1,6 +1,11 @@
 // Get elements
 let texEditor, bibEditor;
 
+const editorSection = document.getElementById("editorSection");
+const projectSelectionContainer = document.getElementById("projectSelectionContainer");
+const userProjectsList = document.getElementById("userProjectsList");
+const showUploadBtn = document.getElementById("showUploadBtn");
+
 const zipFileInput = document.getElementById('zipFile');
 const saveBtn = document.getElementById('saveBtn');
 const compileBtn = document.getElementById('compileBtn');
@@ -16,22 +21,18 @@ const editorColumn = document.getElementById("editorColumn");
 // Get URLs from data attributes
 const container = document.getElementById('latexCompilerContainer');
 const urls = {
+    userProjects: container.dataset.userProjectsUrl,
     upload: container.dataset.uploadUrl,
     getMainTex: container.dataset.getMainTexUrl,
     getMainBib: container.dataset.getMainBibUrl,
     saveProject: container.dataset.saveProjectUrl,
     compile: container.dataset.compileUrl,
-    cleanup: container.dataset.cleanupUrl
+    cleanup: container.dataset.cleanupUrl,
+    selectProject: container.dataset.selectProjectUrl
 };
 
 const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-window.addEventListener('load', () => {
-    const toastBox = document.getElementById('toastBox');
-    if (toastBox) {
-        window.bootstrapToast = new bootstrap.Toast(toastBox);
-    }
-});
 
 function getActiveEditor() {
     const activeTabId = document.querySelector('.nav-link.active')?.getAttribute('data-bs-target');
@@ -66,7 +67,7 @@ function clearUIBusy() {
 
 function setZipControlsEnabled(enabled) {
     zipFileInput.disabled = !enabled;
-    document.getElementById('deleteZipBtn').disabled = enabled;
+    deleteZipBtn.disabled = enabled;
 }
 
 function setPdfVisibility(show) {
@@ -78,6 +79,113 @@ function setPdfVisibility(show) {
         editorColumn.style.width = "100%";
     }
 }
+
+
+function formatDate(dateString) {
+    const d = new Date(dateString);
+    return d.toLocaleString();
+}
+
+async function fetchAndShowUserProjects() {
+    try {
+        const res = await fetch(urls.userProjects);
+        const result = await res.json();
+
+        userProjectsList.innerHTML = '';
+
+        if (result.content?.length) {
+            result.content.forEach(project => {
+                const item = document.createElement("div");
+                item.className = "list-group-item d-flex justify-content-between align-items-center";
+
+                const projectName = formatDate(project.createdAt);
+
+                item.innerHTML = `
+                    <span>${projectName}</span>
+                    <div>
+                        <button class="btn btn-sm btn-outline-success me-2" data-id="${project.id}" data-uuid="${project.uuid}">Выбрать</button>
+                        <button class="btn btn-sm btn-outline-danger" data-id="${project.id}" data-uuid="${project.uuid}" data-delete>Удалить</button>
+                    </div>
+                `;
+
+                userProjectsList.appendChild(item);
+            });
+        } else {
+            userProjectsList.innerHTML = '<div class="text-muted">Нет сохраненных проектов</div>';
+        }
+    } catch (e) {
+        showToast("Ошибка загрузки проектов", false);
+    }
+}
+
+
+userProjectsList.addEventListener('click', async (e) => {
+    const uuid = e.target.dataset.uuid;
+    if (!uuid) return;
+
+    if (e.target.matches('[data-delete]')) {
+        setUIBusy("Удаление проекта...");
+        try {
+            const res = await fetch(urls.cleanup, {
+                method: "POST",
+                headers: {
+                    "RequestVerificationToken": token
+                }
+            });
+
+            if (!res.ok) throw new Error(await res.text());
+
+            showToast("Проект очищен");
+            await fetchAndShowUserProjects();
+        } catch (err) {
+            showToast(`Ошибка удаления проекта: ${err.message}`, false);
+        } finally {
+            clearUIBusy();
+        }
+
+        return;
+    }
+
+    try {
+        console.log(uuid)
+        const res = await fetch(urls.selectProject, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": token
+            },
+            body: JSON.stringify({projectUuid: uuid.toString()})
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        const result = await res.json();
+        if (result.success) {
+            await loadMainTexContent();
+            await loadMainBibContent();
+            projectSelectionContainer.classList.add("d-none");
+            editorSection.classList.remove("d-none");
+        }
+    } catch (err) {
+        console.error("Ошибка выбора проекта:", err);
+        showToast("Не удалось выбрать проект", false);
+    }
+});
+
+
+showUploadBtn.addEventListener("click", () => {
+    projectSelectionContainer.classList.add("d-none");
+    editorSection.classList.remove("d-none");
+});
+
+window.addEventListener('load', () => {
+    const toastBox = document.getElementById('toastBox');
+    if (toastBox) {
+        window.bootstrapToast = new bootstrap.Toast(toastBox);
+    }
+
+    fetchAndShowUserProjects();
+});
 
 zipFileInput.addEventListener('change', async function () {
     setUIBusy("Загрузка файла...");
@@ -118,13 +226,11 @@ zipFileInput.addEventListener('change', async function () {
     }
 });
 
-// Load main.tex content
 async function loadMainTexContent() {
     try {
         const res = await fetch(urls.getMainTex, {
-            method: "POST",
+            method: "GET",
             headers: {
-                "RequestVerificationToken": token,
                 "Content-Type": "application/json"
             }
         });
@@ -138,15 +244,15 @@ async function loadMainTexContent() {
         setZipControlsEnabled(false);
     } catch (err) {
         console.error("Error loading .tex:", err);
-        // showToast(`Ошибка при скачивании .tex:`, false);
+        showToast(`Ошибка при скачивании .tex`, false);
     }
 }
+
 async function loadMainBibContent() {
     try {
         const res = await fetch(urls.getMainBib, {
-            method: "POST",
+            method: "GET",
             headers: {
-                "RequestVerificationToken": token,
                 "Content-Type": "application/json"
             }
         });
@@ -160,11 +266,10 @@ async function loadMainBibContent() {
         setZipControlsEnabled(false);
     } catch (err) {
         console.error("Error loading .tex:", err);
-        // showToast(`Ошибка при скачивании .tex:`, false);
+        showToast(`Ошибка при скачивании .tex`, false);
     }
 }
 
-// Save content
 saveBtn.addEventListener('click', async function () {
     try {
         const res = await fetch(urls.saveProject, {
@@ -190,14 +295,11 @@ saveBtn.addEventListener('click', async function () {
     }
 });
 
-// Compile to PDF
 compileBtn.addEventListener('click', async function () {
     setUIBusy("Компиляция...");
     try {
-        // First save the content
         await saveBtn.click();
 
-        // Then compile
         const res = await fetch(urls.compile, {
             method: "POST",
             headers: {
@@ -382,6 +484,6 @@ window.require(['vs/editor/editor.main'], async () => {
         wordWrap: 'on'
     });
 
-    await loadMainTexContent();
-    await loadMainBibContent();
+    // await loadMainTexContent();
+    // await loadMainBibContent();
 });

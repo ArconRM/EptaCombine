@@ -40,7 +40,7 @@ public class LatexCompilerController : ControllerBase
     }
 
     [HttpPost(nameof(Upload))]
-    public async Task<IActionResult> Upload(long userId, IFormFile zipFile, CancellationToken token)
+    public async Task<IActionResult> Upload([FromForm] long userId, [FromForm] IFormFile zipFile, CancellationToken token)
     {
         try
         {

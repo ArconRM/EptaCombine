@@ -38,6 +38,22 @@ public class LatexCompilerModel : PageModel
         Console.WriteLine(HttpContext.Session.GetString("LatexProjectId"));
     }
 
+    public async Task<IActionResult> OnGetUserProjectsAsync(CancellationToken token)
+    {
+        var userId = await GetCurrentUserIdAsync();
+        if (userId is null)
+            return Unauthorized();
+
+        var content = await _latexCompilerService.GetUserProjectsAsync(userId.Value, token);
+        return new JsonResult(new { content });
+    }
+
+    public IActionResult OnPostSelectActiveProject([FromBody] SelectProjectRequest selectProjectRequest)
+    {
+        _latexCompilerService.SelectActiveProject(selectProjectRequest.ProjectUuid, HttpContext.Session);
+        return new JsonResult(new { success = true });
+    }
+
     public async Task<IActionResult> OnPostUploadAsync([FromForm] IFormFile zipFile, CancellationToken token)
     {
         var userId = await GetCurrentUserIdAsync();
@@ -49,14 +65,13 @@ public class LatexCompilerModel : PageModel
         return new JsonResult(new { success = true });
     }
 
-    public async Task<IActionResult> OnPostGetMainTexAsync(CancellationToken token)
+    public async Task<IActionResult> OnGetMainTexAsync(CancellationToken token)
     {
         var content = await _latexCompilerService.GetMainTexContentAsync(HttpContext.Session, token);
         return new JsonResult(new { content });
     }
 
-
-    public async Task<IActionResult> OnPostGetMainBibAsync(CancellationToken token)
+    public async Task<IActionResult> OnGetMainBibAsync(CancellationToken token)
     {
         var content = await _latexCompilerService.GetMainBibContentAsync(HttpContext.Session, token);
         return new JsonResult(new { content });
