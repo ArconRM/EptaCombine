@@ -23,6 +23,21 @@ public class LatexCompilerController : ControllerBase
         _mapper = mapper;
     }
 
+    [HttpGet(nameof(GetUserProjects))]
+    public async Task<IActionResult> GetUserProjects(long userId, CancellationToken token)
+    {
+        try
+        {
+            var projects = await _latexService.GetUserProjectsAsync(userId, token);
+            return Ok(projects);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Fetch failed.");
+            return StatusCode(500, "Internal server error during fetching.");
+        }
+    }
+
     [HttpPost(nameof(Upload))]
     public async Task<IActionResult> Upload(long userId, IFormFile zipFile, CancellationToken token)
     {

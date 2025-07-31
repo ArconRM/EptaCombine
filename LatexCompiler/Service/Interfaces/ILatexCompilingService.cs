@@ -5,6 +5,8 @@ namespace LatexCompiler.Service.Interfaces;
 
 public interface ILatexCompilingService
 {
+    Task<IEnumerable<LatexProject>> GetUserProjectsAsync(long userId, CancellationToken token);
+    
     Task<LatexProject> UploadAsync(long userId, Stream zipStream, CancellationToken token);
     
     Task<string> GetMainTexContentAsync(Guid projectUuid, CancellationToken token);
