@@ -7,10 +7,12 @@
       - "5000:8080"
     depends_on:
       - fileconverter
+      - db
     volumes:
       - aspnet-data:/usr/share/aspnet/DataProtection-Keys
     environment:
       - ASPNETCORE_DATA_PROTECTION__KEY_RING_PATH=/usr/share/aspnet/DataProtection-Keys
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=EptaCombineDatabase;Username=eptauser;Password=qWbYhFF6
 
   fileconverter:
     build:
@@ -38,6 +40,7 @@
       POSTGRES_PASSWORD: qWbYhFF6
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
 
