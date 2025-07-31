@@ -28,8 +28,9 @@ public class LatexCompilerController : ControllerBase
     {
         try
         {
-            var projects = await _latexService.GetUserProjectsAsync(userId, token);
-            return Ok(projects);
+            IEnumerable<LatexProject> projects = await _latexService.GetUserProjectsAsync(userId, token);
+            IEnumerable<LatexProjectDTO> projectsDto = _mapper.Map<IEnumerable<LatexProjectDTO>>(projects);
+            return Ok(projectsDto);
         }
         catch (Exception ex)
         {
