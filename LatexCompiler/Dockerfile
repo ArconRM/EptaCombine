@@ -22,22 +22,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-latex-recommended \
     texlive-latex-extra \
     texlive-fonts-recommended \
-    texlive-lang-cyrillic \
-    latexmk \
-    perl \
-    python3-pygments \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    texlive-base \
-    texlive-latex-base \
-    texlive-latex-recommended \
-    texlive-latex-extra \
-    texlive-fonts-recommended \
+    texlive-fonts-extra \
     texlive-lang-cyrillic \
     texlive-science \
     texlive-pictures \
     latexmk \
+    perl \
     python3-pygments \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
     
