@@ -1,5 +1,6 @@
 using EptaCombine.Entities;
 using EptaCombine.Entities.Requests;
+using EptaCombine.Entities.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -66,7 +67,9 @@ public class AuthModel : PageModel
             return Unauthorized();
         }
 
-        await _userManager.AddToRoleAsync(user, "User");
+        await _userManager.AddToRoleAsync(user, UserRoles.User);
+        
+        await _signInManager.SignInAsync(user, true);
         
         return RedirectToPage("/Index");
     } 

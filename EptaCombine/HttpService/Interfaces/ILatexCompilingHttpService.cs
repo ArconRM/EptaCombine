@@ -18,5 +18,7 @@ public interface ILatexCompilingHttpService
 
     Task<Stream> CompileAsync(ISession session, CancellationToken token);
 
+    Task DeleteProjectAsync(Guid projectUuid, CancellationToken token);
+
     Task CleanupAsync(ISession session, CancellationToken token);
 }

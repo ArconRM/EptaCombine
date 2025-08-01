@@ -1,6 +1,7 @@
 using Common.Options;
 using EptaCombine.Entities;
 using EptaCombine.Entities.Utils;
+using EptaCombine.Extensions;
 using EptaCombine.HttpService;
 using EptaCombine.HttpService.Interfaces;
 using EptaCombine.Repository;
@@ -129,5 +130,7 @@ app.UseRouting();
 app.UseAuthorization();
 app.UseSession();
 app.MapRazorPages();
+
+await app.SeedRolesAsync();
 
 app.Run();

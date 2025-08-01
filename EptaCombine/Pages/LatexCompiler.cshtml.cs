@@ -48,9 +48,9 @@ public class LatexCompilerModel : PageModel
         return new JsonResult(new { content });
     }
 
-    public IActionResult OnPostSelectActiveProject([FromBody] SelectProjectRequest selectProjectRequest)
+    public IActionResult OnPostSelectActiveProject([FromBody] ProjectRequest projectRequest)
     {
-        _latexCompilerService.SelectActiveProject(selectProjectRequest.ProjectUuid, HttpContext.Session);
+        _latexCompilerService.SelectActiveProject(projectRequest.ProjectUuid, HttpContext.Session);
         return new JsonResult(new { success = true });
     }
 
@@ -93,6 +93,12 @@ public class LatexCompilerModel : PageModel
     {
         var pdfStream = await _latexCompilerService.CompileAsync(HttpContext.Session, token);
         return File(pdfStream, "application/pdf");
+    }
+
+    public async Task<IActionResult> OnPostDeleteProjectAsync([FromBody] ProjectRequest request, CancellationToken token)
+    {
+        await _latexCompilerService.DeleteProjectAsync(request.ProjectUuid, token);
+        return new JsonResult(new { success = true });
     }
 
     public async Task<IActionResult> OnPostCleanupAsync(CancellationToken token)

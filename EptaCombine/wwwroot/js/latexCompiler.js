@@ -28,6 +28,7 @@ const urls = {
     saveProject: container.dataset.saveProjectUrl,
     compile: container.dataset.compileUrl,
     cleanup: container.dataset.cleanupUrl,
+    deleteProject: container.dataset.deleteProjectUrl,
     selectProject: container.dataset.selectProjectUrl
 };
 
@@ -88,6 +89,7 @@ function formatDate(dateString) {
 
 async function fetchAndShowUserProjects() {
     try {
+        setUIBusy("Загрузка проектов...");
         const res = await fetch(urls.userProjects);
         const result = await res.json();
 
@@ -115,6 +117,8 @@ async function fetchAndShowUserProjects() {
         }
     } catch (e) {
         showToast("Ошибка загрузки проектов", false);
+    } finally {
+        clearUIBusy();
     }
 }
 
@@ -126,11 +130,13 @@ userProjectsList.addEventListener('click', async (e) => {
     if (e.target.matches('[data-delete]')) {
         setUIBusy("Удаление проекта...");
         try {
-            const res = await fetch(urls.cleanup, {
+            const res = await fetch(urls.deleteProject, {
                 method: "POST",
                 headers: {
+                    "Content-Type": "application/json",
                     "RequestVerificationToken": token
-                }
+                },
+                body: JSON.stringify({projectUuid: uuid.toString()})
             });
 
             if (!res.ok) throw new Error(await res.text());

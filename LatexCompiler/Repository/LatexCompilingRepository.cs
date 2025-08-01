@@ -12,11 +12,14 @@ public class LatexCompilingRepository : ILatexCompilingRepository
 {
     private readonly string _root;
 
-    public LatexCompilingRepository(IOptions<CompilerSettings> options)
+    private readonly ILogger<LatexCompilingRepository> _logger;
+
+    public LatexCompilingRepository(IOptions<CompilerSettings> options, ILogger<LatexCompilingRepository> logger)
     {
         _root = options.Value.FullTempPath;
+        _logger = logger;
     }
-    
+
     public LatexProject SaveProjectFromZip(long userId, Stream zipStream)
     {
         var project = new LatexProject
@@ -24,10 +27,10 @@ public class LatexCompilingRepository : ILatexCompilingRepository
             Uuid = Guid.NewGuid(),
             UserId = userId
         };
-            
+
         var tempDir = Path.Combine(_root, project.Uuid.ToString());
         Directory.CreateDirectory(tempDir);
-        
+
         try
         {
             using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: true))
@@ -42,16 +45,16 @@ public class LatexCompilingRepository : ILatexCompilingRepository
             var texFiles = Directory.GetFiles(tempDir, "*.tex", SearchOption.AllDirectories);
             if (!texFiles.Any())
                 throw new InvalidOperationException("No .tex files found in archive");
-            var mainTexFile = texFiles.FirstOrDefault(f => 
+            var mainTexFile = texFiles.FirstOrDefault(f =>
                 Path.GetFileName(f).Equals("main.tex", StringComparison.OrdinalIgnoreCase)) ?? texFiles.First();
             var mainTexName = Path.GetFileName(mainTexFile);
 
             var workDir = Path.GetDirectoryName(mainTexFile);
-            
+
             var bibFiles = Directory.GetFiles(workDir, "*.bib", SearchOption.AllDirectories);
             if (!bibFiles.Any())
                 throw new InvalidOperationException("No bib files found in archive");
-            var mainBibName = Path.GetFileName(bibFiles.FirstOrDefault(f => 
+            var mainBibName = Path.GetFileName(bibFiles.FirstOrDefault(f =>
                 Path.GetFileName(f).Equals("thesis.bib", StringComparison.OrdinalIgnoreCase)) ?? bibFiles.First());
 
             project.ProjectDirectory = workDir;
@@ -91,7 +94,8 @@ public class LatexCompilingRepository : ILatexCompilingRepository
     }
 
     public async Task<Stream> CompileAsync(LatexProject project, CancellationToken token)
-    {try
+    {
+        try
         {
             CleanBuildArtifacts(project.ProjectDirectory);
 
@@ -116,16 +120,22 @@ public class LatexCompilingRepository : ILatexCompilingRepository
             await proc.WaitForExitAsync(token);
 
             var output = await proc.StandardOutput.ReadToEndAsync(token);
-            var error = await proc.StandardError.ReadToEndAsync(token);
-
-            var pdfPath = Path.Combine(project.ProjectDirectory, Path.GetFileNameWithoutExtension(project.MainTexPath) + ".pdf");
+            _logger.LogInformation(output);
             
+            var error = await proc.StandardError.ReadToEndAsync(token);
+            if (!string.IsNullOrEmpty(error))
+                _logger.LogError(error);
+
+            var pdfPath = Path.Combine(project.ProjectDirectory,
+                Path.GetFileNameWithoutExtension(project.MainTexPath) + ".pdf");
+
             if (!File.Exists(pdfPath))
             {
                 throw new Exception($"PDF generation failed");
             }
 
-            return new FileStream(pdfPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.DeleteOnClose);
+            return new FileStream(pdfPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096,
+                FileOptions.DeleteOnClose);
         }
         catch (Exception ex)
         {

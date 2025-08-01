@@ -1,6 +1,6 @@
 namespace Common.DTO;
 
-public class SelectProjectRequest
+public class ProjectRequest
 {
     public Guid ProjectUuid { get; set; }
 }

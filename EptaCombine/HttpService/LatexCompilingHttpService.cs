@@ -109,13 +109,19 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
         return resultStream;
     }
 
+    public async Task DeleteProjectAsync(Guid projectUuid, CancellationToken token)
+    {
+        var response = await _httpClient.DeleteAsync($"api/LatexCompiler/Cleanup?projectUuid={projectUuid}", token);
+        await EnsureSuccessStatusCode(response, token);
+    }
+
     public async Task CleanupAsync(ISession session, CancellationToken token)
     {
         var uuid = GetProjectUuidFromSession(session);
-        var requestUri = $"api/LatexCompiler/Cleanup?projectUuid={uuid}";
-        var response = await _httpClient.DeleteAsync(requestUri, token);
-        session.Remove(SessionKey);
+        var response = await _httpClient.DeleteAsync($"api/LatexCompiler/Cleanup?projectUuid={uuid}", token);
         await EnsureSuccessStatusCode(response, token);
+        
+        session.Remove(SessionKey);
     }
 
     private static Guid GetProjectUuidFromSession(ISession session)

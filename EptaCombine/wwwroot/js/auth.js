@@ -61,15 +61,15 @@ document.getElementById('loginForm')?.addEventListener('submit', async function 
 
         if (response.status === 401) {
             showToast('Неверный логин или пароль', false);
+            return;
         }
 
         if (!response.ok) {
-            const error = await response.text();
-            showToast(error || 'Ошибка входа', false);
+            showToast('Ошибка входа', false);
+            return;
         }
 
         showToast("Вход выполнен успешно");
-        setTimeout(() => window.location.href = '/', 1000);
 
     } catch (err) {
         console.error("Login error:", err);
@@ -115,28 +115,29 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
             body: JSON.stringify(formData)
         });
 
-        if (response.redirected) {
-            window.location.href = response.url;
-            return;
-        }
-
         if (response.status === 400) {
             const error = await response.text();
             showToast(error.includes("already exists") ?
                 "Пользователь с таким логином или email уже существует" :
                 "Ошибка регистрации", false);
+            return;
         }
 
         if (response.status === 401) {
             showToast('Ошибка создания пользователя', false);
+            return;
         }
 
         if (!response.ok) {
             showToast('Ошибка регистрации', false);
+            return;
         }
 
         showToast("Регистрация прошла успешно");
-        setTimeout(() => window.location.href = '/', 1000);
+
+        if (response.redirected) {
+            window.location.href = response.url;
+        }
 
     } catch (err) {
         console.error("Registration error:", err);
