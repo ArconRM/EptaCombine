@@ -168,7 +168,7 @@ public class LatexCompilingRepository : ILatexCompilingRepository
             {
                 _logger.LogError("LaTeX process exited with non-zero code: {exitCode}.\nStandard Error:\n{error}",
                     proc.ExitCode, error);
-                throw new Exception($"LaTeX compilation failed with exit code {proc.ExitCode}. See logs for details.");
+                // throw new Exception($"LaTeX compilation failed with exit code {proc.ExitCode}. See logs for details.");
             }
 
             if (!string.IsNullOrEmpty(error))
