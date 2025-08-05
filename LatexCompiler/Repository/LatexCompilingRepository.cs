@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Text;
 using Common.Entities;
 using LatexCompiler.Entities;
 using LatexCompiler.Options;
@@ -95,50 +96,119 @@ public class LatexCompilingRepository : ILatexCompilingRepository
 
     public async Task<Stream> CompileAsync(LatexProject project, CancellationToken token)
     {
+        CleanBuildArtifacts(project.ProjectDirectory);
+
+        var psi = new ProcessStartInfo
+        {
+            FileName = "latexmk",
+            Arguments = $"-synctex=1 " +
+                        $"-interaction=nonstopmode " +
+                        $"-file-line-error " +
+                        $"-shell-escape " +
+                        $"-pdf " +
+                        $"-f " +
+                        $"-g " +
+                        $"-outdir=\"{project.ProjectDirectory}\" \"{Path.GetFileName(project.MainTexPath)}\"",
+            WorkingDirectory = project.ProjectDirectory,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var proc = new Process { StartInfo = psi };
+
+        var outputBuilder = new StringBuilder();
+        var errorBuilder = new StringBuilder();
+
+        using var outputWaitHandle = new AutoResetEvent(false);
+        using var errorWaitHandle = new AutoResetEvent(false);
+
+        proc.OutputDataReceived += (sender, e) =>
+        {
+            if (e.Data == null)
+            {
+                outputWaitHandle.Set();
+            }
+            else
+            {
+                outputBuilder.AppendLine(e.Data);
+            }
+        };
+        proc.ErrorDataReceived += (sender, e) =>
+        {
+            if (e.Data == null)
+            {
+                errorWaitHandle.Set();
+            }
+            else
+            {
+                errorBuilder.AppendLine(e.Data);
+            }
+        };
+
         try
         {
-            CleanBuildArtifacts(project.ProjectDirectory);
+            proc.Start();
 
-            var psi = new ProcessStartInfo
-            {
-                FileName = "latexmk",
-                Arguments = $"-synctex=1 " +
-                            $"-interaction=nonstopmode " +
-                            $"-file-line-error " +
-                            $"-pdf " +
-                            $"-f " +
-                            $"-g " +
-                            $"-outdir=\"{project.ProjectDirectory}\" \"{Path.GetFileName(project.MainTexPath)}\"",
-                WorkingDirectory = project.ProjectDirectory,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+            proc.BeginOutputReadLine();
+            proc.BeginErrorReadLine();
 
-            using var proc = Process.Start(psi);
             await proc.WaitForExitAsync(token);
+            outputWaitHandle.WaitOne(TimeSpan.FromSeconds(30));
+            errorWaitHandle.WaitOne(TimeSpan.FromSeconds(30));
 
-            var output = await proc.StandardOutput.ReadToEndAsync(token);
-            _logger.LogInformation(output);
-            
-            var error = await proc.StandardError.ReadToEndAsync(token);
+            var output = outputBuilder.ToString();
+            var error = errorBuilder.ToString();
+
+            if (!string.IsNullOrEmpty(output))
+                _logger.LogInformation("LaTeX Standard Output:\n{output}", output);
+
+            if (proc.ExitCode != 0)
+            {
+                _logger.LogError("LaTeX process exited with non-zero code: {exitCode}.\nStandard Error:\n{error}",
+                    proc.ExitCode, error);
+                throw new Exception($"LaTeX compilation failed with exit code {proc.ExitCode}. See logs for details.");
+            }
+
             if (!string.IsNullOrEmpty(error))
-                _logger.LogError(error);
+                _logger.LogWarning("LaTeX Standard Error (while successful):\n{error}", error);
 
             var pdfPath = Path.Combine(project.ProjectDirectory,
                 Path.GetFileNameWithoutExtension(project.MainTexPath) + ".pdf");
 
             if (!File.Exists(pdfPath))
             {
-                throw new Exception($"PDF generation failed");
+                throw new Exception(
+                    $"PDF generation failed: Output PDF file not found even though latexmk exited successfully.");
             }
 
             return new FileStream(pdfPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096,
                 FileOptions.DeleteOnClose);
         }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "LaTeX compilation was canceled, likely due to a timeout.");
+            _logger.LogWarning("Partial Standard Output captured before cancellation:\n{output}",
+                outputBuilder.ToString());
+            _logger.LogWarning("Partial Standard Error captured before cancellation:\n{error}",
+                errorBuilder.ToString());
+
+            if (!proc.HasExited)
+            {
+                proc.Kill(true);
+            }
+
+            throw new Exception($"LaTeX compilation failed: The operation was canceled.", ex);
+        }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "An unexpected error occurred during LaTeX compilation.");
+            if (!proc.HasExited)
+            {
+                proc.Kill(true);
+            }
+
             throw new Exception($"LaTeX compilation failed: {ex.Message}", ex);
         }
     }
