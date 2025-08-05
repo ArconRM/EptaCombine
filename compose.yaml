@@ -31,6 +31,8 @@ services:
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=LatexCompilerDatabase;Username=eptauser;Password=qWbYhFF6
     depends_on:
       - db
+    volumes:
+      - latexcompiler_data:/var/lib/latexcompiler
   
   db:
     image: postgres:16
@@ -47,3 +49,4 @@ services:
 volumes:
   postgres_data:
   aspnet-data:
+  latexcompiler_data:

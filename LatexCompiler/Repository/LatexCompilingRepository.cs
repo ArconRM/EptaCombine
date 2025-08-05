@@ -16,7 +16,7 @@ public class LatexCompilingRepository : ILatexCompilingRepository
 
     public LatexCompilingRepository(IOptions<CompilerSettings> options, ILogger<LatexCompilingRepository> logger)
     {
-        _root = options.Value.FullTempPath;
+        _root = options.Value.DataDirectory;
         _logger = logger;
     }
 
