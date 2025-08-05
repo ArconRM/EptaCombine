@@ -1,4 +1,22 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS latex-base
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    texlive-base \
+    texlive-latex-base \
+    texlive-latex-recommended \
+    texlive-latex-extra \
+    texlive-fonts-recommended \
+    texlive-fonts-extra \
+    texlive-lang-cyrillic \
+    texlive-science \
+    texlive-pictures \
+    python3 \
+    python3-pygments \
+    latexmk \
+    perl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["EptaCombine.sln", "."]
@@ -14,23 +32,9 @@ COPY ["Core/", "Core/"]
 
 RUN dotnet publish "LatexCompiler/LatexCompiler.csproj" -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM latex-base AS final
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    texlive-base \
-    texlive-latex-base \
-    texlive-latex-recommended \
-    texlive-latex-extra \
-    texlive-fonts-recommended \
-    texlive-fonts-extra \
-    texlive-lang-cyrillic \
-    texlive-science \
-    texlive-pictures \
-    latexmk \
-    perl \
-    python3-pygments \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-    
 WORKDIR /app
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "LatexCompiler.dll"]
+
