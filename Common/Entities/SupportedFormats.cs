@@ -10,6 +10,8 @@ public static class SupportedFormats
         { FileCategory.Archive, [FileFormat.Zip, FileFormat.Tar, FileFormat.TarGZip] },
         { FileCategory.Video, [FileFormat.Mp4, FileFormat.Avi, FileFormat.MkV, FileFormat.Mov, FileFormat.Hls, FileFormat.Gif, FileFormat.Webm] },
         { FileCategory.Audio, [FileFormat.Mp3, FileFormat.Wav, FileFormat.Flac, FileFormat.Aac, FileFormat.Adts] },
+        { FileCategory.Docs, [FileFormat.Md, FileFormat.Html, FileFormat.Docx, FileFormat.Odt, FileFormat.Tex] },
+        // { FileCategory.Books, [FileFormat.Epub, FileFormat.Fb2, FileFormat.Pdf] }
     };
 
     public static FileCategory GetCategory(FileFormat format) =>

@@ -11,17 +11,20 @@ public class FileConversionService : IFileConversionService
     private readonly IVideoFileConversionService _videoFileConversionService;
     private readonly IAudioFileConversionService _audioFileConversionService;
     private readonly IArchiveFileConversionService _archiveFileConversionService;
+    private readonly IPandocService _pandocService;
 
     public FileConversionService(
         IImageFileConversionService imageFileConversionService,
         IVideoFileConversionService videoFileConversionService,
         IAudioFileConversionService audioFileConversionService,
-        IArchiveFileConversionService archiveFileConversionService)
+        IArchiveFileConversionService archiveFileConversionService,
+        IPandocService pandocService)
     {
         _imageFileConversionService = imageFileConversionService;
         _videoFileConversionService = videoFileConversionService;
         _audioFileConversionService = audioFileConversionService;
         _archiveFileConversionService = archiveFileConversionService;
+        _pandocService = pandocService;
     }
 
     public async Task<Stream> ConvertFileAsync(
@@ -64,8 +67,17 @@ public class FileConversionService : IFileConversionService
                     inputStream,
                     outFormat,
                     token);
+            
+            case FileCategory.Docs:
+            case FileCategory.Books:
+                return await _pandocService.ConvertFileAsync(
+                    inputStream,
+                    inFormat,
+                    outFormat,
+                    token);
+            
+            default:
+                throw new ArgumentOutOfRangeException();
         }
-
-        return null;
     }
 }

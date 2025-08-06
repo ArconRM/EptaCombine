@@ -32,6 +32,9 @@ builder.Services.AddScoped<IAudioFileConversionService, AudioFileConversionServi
 builder.Services.AddScoped<IArchiveFileConversionRepository, ArchiveFileConversionRepository>();
 builder.Services.AddScoped<IArchiveFileConversionService, ArchiveFileConversionService>();
 
+builder.Services.AddScoped<IPandocRepository, PandocRepository>();
+builder.Services.AddScoped<IPandocService, PandocService>();
+
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = maxFileSize;

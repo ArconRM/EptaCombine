@@ -6,4 +6,6 @@ public enum FileCategory
     Archive,
     Video,
     Audio,
+    Docs,
+    Books
 }

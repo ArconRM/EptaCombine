@@ -29,5 +29,17 @@ public enum FileFormat
     Wav,
     Flac,
     Aac,
-    Adts
+    Adts,
+    
+    // Docs
+    Md,
+    Html,
+    Docx,
+    Odt,
+    Tex,
+    
+    // Books
+    Epub,
+    Fb2,
+    Pdf
 }
