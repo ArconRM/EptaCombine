@@ -22,4 +22,5 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY --from=build /app/publish .
+COPY --from=pandoc/minimal:2.19.2 /pandoc /usr/bin/pandoc
 ENTRYPOINT ["dotnet", "FileConverter.dll"]

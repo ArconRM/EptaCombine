@@ -17,5 +17,4 @@ RUN dotnet publish "EptaCombine/EptaCombine.csproj" -c Release -o /app/publish -
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
-COPY --from=pandoc/minimal:2.19.2 /pandoc /usr/bin/pandoc
 ENTRYPOINT ["dotnet", "EptaCombine.dll"]
