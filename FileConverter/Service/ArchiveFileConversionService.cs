@@ -1,3 +1,5 @@
+using System.IO.Compression;
+using Common.Entities;
 using Common.Entities.Enums;
 using FileConverter.Repository.Interfaces;
 using FileConverter.Service.Interfaces;
@@ -18,7 +20,7 @@ public class ArchiveFileConversionService : IArchiveFileConversionService
         Stream inputStream,
         FileFormat inFormat,
         FileFormat outFormat,
-        CancellationToken cancellationToken)
+        CancellationToken token)
     {
         ArchiveType inType = MapArchiveFormat(inFormat);
         ArchiveType outType = MapArchiveFormat(outFormat);
@@ -26,7 +28,7 @@ public class ArchiveFileConversionService : IArchiveFileConversionService
             inputStream,
             inType,
             outType,
-            cancellationToken);
+            token);
     }
 
     private ArchiveType MapArchiveFormat(FileFormat fileFormat)

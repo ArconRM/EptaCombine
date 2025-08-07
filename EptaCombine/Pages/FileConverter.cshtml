@@ -66,6 +66,21 @@
     </div>
 </div>
 
+<div class="modal fade" id="zipChoiceModal" tabindex="-1" aria-labelledby="zipChoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="zipChoiceModalLabel">Что вы хотите конвертировать?</h5>
+            </div>
+            <div class="modal-body">
+                <p>Архив содержит файлы. Выберите, что нужно конвертировать:</p>
+                <button id="convertWholeZipBtn" class="btn btn-outline-primary w-100 mb-2">📦 Сам архив</button>
+                <button id="convertFilesInArchiveBtn" class="btn btn-outline-success w-100">📂 Файлы внутри архива</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script src="~/js/fileConverter.js?v=@DateTime.Now.Ticks"></script>
 }

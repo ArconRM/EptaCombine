@@ -8,5 +8,5 @@ public interface IArchiveFileConversionService
         Stream inputStream,
         FileFormat inFormat,
         FileFormat outFormat,
-        CancellationToken cancellationToken);
+        CancellationToken token);
 }

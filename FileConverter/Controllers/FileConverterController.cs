@@ -21,7 +21,11 @@ public class FileConverterController: ControllerBase
     }
 
     [HttpPost(nameof(Convert))]
-    public async Task<IActionResult> Convert(IFormFile inputFile, FileFormat inputFormat, FileFormat outFormat, CancellationToken token)
+    public async Task<IActionResult> Convert(
+        IFormFile inputFile,
+        FileFormat inputFormat,
+        FileFormat outFormat,
+        CancellationToken token)
     {
         try
         {
@@ -32,6 +36,30 @@ public class FileConverterController: ControllerBase
 
             await using var inputStream = inputFile.OpenReadStream();
             Stream outStream = await _fileConversionService.ConvertFileAsync(inputStream, inputFormat, outFormat, token);
+            return Ok(outStream);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            throw;
+        }
+    }
+
+    [HttpPost(nameof(ConvertFilesInArchive))]
+    public async Task<IActionResult> ConvertFilesInArchive(
+        IFormFile inputZip,
+        FileFormat outFormat,
+        CancellationToken token)
+    {
+        try
+        {
+            if (inputZip.Length == 0)
+            {
+                return BadRequest("No file uploaded.");
+            }
+            
+            await using var inputStream = inputZip.OpenReadStream();
+            Stream outStream = await _fileConversionService.ConvertFilesInArchiveAsync(inputStream, outFormat, token);
             return Ok(outStream);
         }
         catch (Exception e)

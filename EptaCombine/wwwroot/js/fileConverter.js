@@ -1,3 +1,5 @@
+let convertFilesInArchive = false;
+
 function showToast(message, isSuccess = true) {
     const toastBody = toastBox.querySelector('.toast-body');
     toastBody.textContent = message;
@@ -32,16 +34,43 @@ window.addEventListener('load', () => {
 });
 
 document.getElementById('uploadFile').addEventListener('change', async function () {
+    convertFilesInArchive = false;
+    
     const file = this.files[0];
     if (!file) return;
 
+    const isZip = file.name.toLowerCase().endsWith(".zip");
+
+    if (isZip) {
+        const modal = new bootstrap.Modal(document.getElementById("zipChoiceModal"));
+        modal.show();
+
+        document.getElementById("convertWholeZipBtn").onclick = async () => {
+            convertFilesInArchive = false;
+            modal.hide();
+            await analyzeFile(file, false);
+        };
+
+        document.getElementById("convertFilesInArchiveBtn").onclick = async () => {
+            convertFilesInArchive = true;
+            modal.hide();
+            await analyzeFile(file, true);
+        };
+    } else {
+        convertFilesInArchive = false;
+        await analyzeFile(file, false);
+    }
+});
+
+async function analyzeFile(file, convertFilesInArchive) {
     const formData = new FormData();
     formData.append("uploadFile", file);
+    formData.append("convertFilesInArchive", convertFilesInArchive);
 
     const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
     try {
-        setUIBusy("Загрузка...");
+        setUIBusy("Загрузка файла...");
         const res = await fetch("/FileConverter?handler=AnalyzeFile", {
             method: "POST",
             headers: {
@@ -82,7 +111,7 @@ document.getElementById('uploadFile').addEventListener('change', async function 
         console.error("JS exception:", err);
         showToast("Ошибка загрузки", false)
     }
-});
+}
 
 document.getElementById('formatSelect').addEventListener('change', function() {
     document.getElementById("result-section").classList.add("d-none");
@@ -105,6 +134,7 @@ document.getElementById('convertBtn').addEventListener('click', async function (
     const formData = new FormData();
     formData.append("uploadFile", file);
     formData.append("outputFormat", outputFormat);
+    formData.append("convertFilesInArchive", convertFilesInArchive ? "true" : "false");
 
     try {
         const response = await fetch("/FileConverter?handler=ConvertFile", {

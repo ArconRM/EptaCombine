@@ -3,6 +3,7 @@ using SharpCompress.Archives;
 using SharpCompress.Common;
 using SharpCompress.Writers;
 using System.IO.Compression;
+using Common.Entities.Enums;
 
 namespace FileConverter.Repository;
 
@@ -12,7 +13,7 @@ public class ArchiveFileConversionRepository : IArchiveFileConversionRepository
         Stream inputStream,
         ArchiveType inFormat,
         ArchiveType outFormat,
-        CancellationToken cancellationToken)
+        CancellationToken token)
     {
         using var archive = ArchiveFactory.Open(inputStream);
         var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
@@ -30,7 +31,7 @@ public class ArchiveFileConversionRepository : IArchiveFileConversionRepository
                 {
                     using var entryStream = entry.OpenEntryStream();
                     using var ms = new MemoryStream();
-                    entryStream.CopyTo(ms);
+                    await entryStream.CopyToAsync(ms, token);
                     ms.Position = 0;
                     tarWriter.Write(entry.Key, ms, entry.LastModifiedTime ?? DateTime.Now);
                 }
@@ -40,7 +41,7 @@ public class ArchiveFileConversionRepository : IArchiveFileConversionRepository
 
             var compressed = new GZipStream(output, CompressionMode.Compress, leaveOpen: true);
 
-            await tarStream.CopyToAsync(compressed, cancellationToken);
+            await tarStream.CopyToAsync(compressed, token);
             await compressed.DisposeAsync();
         }
         else
@@ -52,7 +53,7 @@ public class ArchiveFileConversionRepository : IArchiveFileConversionRepository
             {
                 using var entryStream = entry.OpenEntryStream();
                 using var ms = new MemoryStream();
-                entryStream.CopyTo(ms);
+                await entryStream.CopyToAsync(ms, token);
                 ms.Position = 0;
                 outWriter.Write(entry.Key, ms, entry.LastModifiedTime ?? DateTime.Now);
             }

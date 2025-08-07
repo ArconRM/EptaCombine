@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using Common.Entities;
 using Common.Entities.Enums;
 using FileConverter.Repository.Interfaces;
@@ -79,5 +80,50 @@ public class FileConversionService : IFileConversionService
             default:
                 throw new ArgumentOutOfRangeException();
         }
+    }
+    
+    
+    public async Task<Stream> ConvertFilesInArchiveAsync(
+        Stream inputStream,
+        FileFormat outFormat,
+        CancellationToken token)
+    {
+        using var zipArchive = new ZipArchive(inputStream, ZipArchiveMode.Read);
+        
+        var requiredCategory = SupportedFormats.GetCategory(outFormat);
+        var zipCategories = zipArchive.Entries
+            .Select(x => SupportedFormats.GetCategory(
+                FileFormatExtensions.GetFormatFromFileName(
+                    Path.GetExtension(x.Name)) ?? FileFormat.Unknown)
+            )
+            .Distinct()
+            .ToList();
+        if (zipCategories.Count != 1 && zipCategories.First() != requiredCategory)
+            throw new InvalidDataException("Zip contains more than one file format category");
+        
+        var outputStream = new MemoryStream();
+        using (var outputZip = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            foreach (var entry in zipArchive.Entries)
+            {
+                if (entry.Name.StartsWith("."))
+                    continue;
+            
+                var fileFormat = FileFormatExtensions.GetFormatFromFileName(entry.Name).Value;
+                await using var entryStream = entry.Open();
+                var convertedEntry = await ConvertFileAsync(entryStream, fileFormat, outFormat, token);
+            
+                var newEntry = outputZip.CreateEntry(string.Format(
+                    "{0}.{1}", 
+                    Path.GetFileNameWithoutExtension(entry.Name), 
+                    FileFormatExtensions.GetStringExtension(outFormat))
+                );
+                await using var newEntryStream = newEntry.Open();
+                await convertedEntry.CopyToAsync(newEntryStream, token);
+            }
+        }
+        
+        outputStream.Position = 0;
+        return outputStream;
     }
 }

@@ -2,6 +2,8 @@ namespace Common.Entities.Enums;
 
 public enum FileFormat
 {
+    Unknown,
+    
     // Image
     Png,
     Jpg,

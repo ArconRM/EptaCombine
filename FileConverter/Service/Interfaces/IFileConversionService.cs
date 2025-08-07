@@ -9,4 +9,9 @@ public interface IFileConversionService
         FileFormat inFormat,
         FileFormat outFormat,
         CancellationToken token);
+
+    Task<Stream> ConvertFilesInArchiveAsync(
+        Stream inputStream,
+        FileFormat outFormat,
+        CancellationToken token);
 }

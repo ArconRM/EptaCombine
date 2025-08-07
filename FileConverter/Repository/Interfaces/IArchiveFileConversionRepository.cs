@@ -1,3 +1,4 @@
+using Common.Entities.Enums;
 using SharpCompress.Common;
 
 namespace FileConverter.Repository.Interfaces;
@@ -8,5 +9,5 @@ public interface IArchiveFileConversionRepository
         Stream inputStream,
         ArchiveType inFormat,
         ArchiveType outFormat,
-        CancellationToken cancellationToken);
+        CancellationToken token);
 }
