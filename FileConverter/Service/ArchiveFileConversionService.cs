@@ -36,6 +36,7 @@ public class ArchiveFileConversionService : IArchiveFileConversionService
         return fileFormat switch
         {
             FileFormat.Zip => ArchiveType.Zip,
+            FileFormat.Rar => ArchiveType.Rar,
             FileFormat.Tar => ArchiveType.Tar,
             FileFormat.TarGZip => ArchiveType.GZip,
             _ => throw new ArgumentOutOfRangeException($"Format {fileFormat} not supported")

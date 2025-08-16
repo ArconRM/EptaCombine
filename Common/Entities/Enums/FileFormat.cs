@@ -14,6 +14,7 @@ public enum FileFormat
 
     // Archive
     Zip,
+    Rar,
     Tar,
     TarGZip,
     
