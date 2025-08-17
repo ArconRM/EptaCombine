@@ -24,36 +24,36 @@
 
 2. Соберите и запустите контейнеры:
    ```bash
-   docker-compose up -d --build
+   docker compose up -d --build
    ```
 
 3. Система будет доступна:
-   - Web UI: http://localhost:5000
-   - FileConverter API: http://localhost:5001
-   - LaTeX Compiler API: http://localhost:5002
+   - Web UI: http://localhost:5100
+   - FileConverter API: http://localhost:5101
+   - LaTeX Compiler API: http://localhost:5102
    - База pg: http://localhost:5432
 
 4. Для остановки:
    ```bash
-   docker-compose down
+   docker compose down
    ```
 
 ---
 
 ### Контейнеры:
 - **web** - ASP.NET Razor Pages приложение
-  - Порт: 5000:80
+  - Порт: 5100:80
   - Зависит от fileconverter
 
 - **fileconverter** - Микросервис обработки файлов
-  - Порт: 5001:80
+  - Порт: 5101:80
   - Поддерживает:
     - Конвертацию форматов
     - Изменение параметров медиа
     - Пакетную обработку
    
 - **latexcompiler** - Микросервис компиляции LaTeX
-  - Порт: 5002:80
+  - Порт: 5102:80
   - Поддерживает:
      -   Загрузку шаблона LaTeX
      -   Редактирование main.tex и thesis.bib
