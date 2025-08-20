@@ -64,7 +64,7 @@ public class FileConverterModel : PageModel
             var category = SupportedFormats.GetCategory(inputFormat.Value);
             var outputFormats = SupportedFormats.GetFormats(category)
                 .Where(f => f != inputFormat.Value)
-                .Select(f => f.ToString().ToLower())
+                .Select(FileFormatExtensions.GetStringExtension)
                 .ToList();
 
             return new JsonResult(new
