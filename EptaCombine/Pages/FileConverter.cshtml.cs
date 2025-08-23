@@ -50,7 +50,7 @@ public class FileConverterModel : PageModel
             if (category == null)
                 return BadRequest("Archive contents unsupported or mixed");
 
-            var outputFormats = SupportedFormats.GetFormats(category.Value).Select(f => f.ToString()).ToList();
+            var outputFormats = SupportedFormats.GetFormats(category.Value).Select(f => FileFormatExtensions.GetStringExtension(f)).ToList();
 
             return new JsonResult(new
             {
