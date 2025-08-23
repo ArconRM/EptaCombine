@@ -8,7 +8,7 @@ public static class SupportedFormats
     {
         { FileCategory.Image, [FileFormat.Png, FileFormat.Jpg, FileFormat.Jpeg, FileFormat.Bmp, FileFormat.Tiff, FileFormat.Webp] },
         { FileCategory.Archive, [FileFormat.Zip, FileFormat.Rar, FileFormat.Tar, FileFormat.TarGZip] },
-        { FileCategory.Video, [FileFormat.Mp4, FileFormat.Avi, FileFormat.MkV, FileFormat.Mov, FileFormat.Hls, FileFormat.Gif, FileFormat.Webm] },
+        { FileCategory.Video, [FileFormat.Mp4, FileFormat.Avi, FileFormat.MkV, FileFormat.Mov, FileFormat.Gif, FileFormat.Webm] },
         { FileCategory.Audio, [FileFormat.Mp3, FileFormat.Wav, FileFormat.Flac, FileFormat.Aac, FileFormat.Adts] },
         { FileCategory.Docs, [FileFormat.Md, FileFormat.Html, FileFormat.Docx, FileFormat.Odt, FileFormat.Tex] },
         // { FileCategory.Books, [FileFormat.Epub, FileFormat.Fb2, FileFormat.Pdf] }

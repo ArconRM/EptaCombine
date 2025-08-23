@@ -24,7 +24,7 @@ public class AudioFileConversionRepository : IAudioFileConversionRepository
             }
 
             var outCodec = GetCodecForFormat(outFormat);
-            var outFormatString = FileFormatExtensions.GetStringExtension(outFormat);
+            var outFormatString = outFormat == FileFormat.Aac ? "mp4" : FileFormatExtensions.GetStringExtension(outFormat);
 
             var args = FFMpegArguments
                 .FromFileInput(tempInputFile)

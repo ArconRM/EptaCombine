@@ -23,7 +23,6 @@ public enum FileFormat
     Avi,
     MkV,
     Mov,
-    Hls,
     Gif,
     Webm,
 
@@ -31,7 +30,7 @@ public enum FileFormat
     Mp3,
     Wav,
     Flac,
-    Aac,
+    Aac, // m4a
     Adts,
     
     // Docs
