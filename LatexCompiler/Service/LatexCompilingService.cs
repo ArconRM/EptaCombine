@@ -24,11 +24,19 @@ public class LatexCompilingService : ILatexCompilingService
         return await _latexProjectRepository.GetUserProjectsAsync(userId, token);
     }
 
-    public async Task<LatexProject> UploadAsync(long userId, Stream zipStream, CancellationToken token)
+    public async Task<LatexProject> CreateProjectFromTemplateAsync(long userId, CancellationToken token)
     {
-        var project = _latexCompilingRepository.SaveProjectFromZip(userId, zipStream);
+        var project = await _latexCompilingRepository.SaveProjectFromTemplateAsync(userId, token);
         await _latexProjectRepository.CreateAsync(project, token);
-        
+
+        return project;
+    }
+
+    public async Task<LatexProject> CreateProjectFromZipAsync(long userId, Stream zipStream, CancellationToken token)
+    {
+        var project = await _latexCompilingRepository.SaveProjectFromZipAsync(userId, zipStream, token);
+        await _latexProjectRepository.CreateAsync(project, token);
+
         return project;
     }
 
@@ -42,7 +50,7 @@ public class LatexCompilingService : ILatexCompilingService
     public async Task<string> GetMainBibContentAsync(Guid projectUuid, CancellationToken token)
     {
         var project = await GetProjectAsync(projectUuid, token);
-        
+
         return await _latexCompilingRepository.GetMainBibContentAsync(project, token);
     }
 
@@ -52,18 +60,18 @@ public class LatexCompilingService : ILatexCompilingService
         await _latexCompilingRepository.UpdateMainTexAsync(project, texContent, token);
         await _latexCompilingRepository.UpdateMainBibAsync(project, bibContent, token);
     }
-    
+
     public async Task<Stream> CompileAsync(Guid projectUuid, CancellationToken token)
     {
         var project = await GetProjectAsync(projectUuid, token);
-        
+
         return await _latexCompilingRepository.CompileAsync(project, token);
     }
 
     public async Task CleanupAsync(Guid projectUuid, CancellationToken token)
     {
         var project = await GetProjectAsync(projectUuid, token);
-        
+
         await _latexProjectRepository.DeleteAsync(projectUuid, token);
         _latexCompilingRepository.Delete(project);
     }

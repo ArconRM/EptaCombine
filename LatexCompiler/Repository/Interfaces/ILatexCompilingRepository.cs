@@ -5,7 +5,9 @@ namespace LatexCompiler.Repository.Interfaces;
 
 public interface ILatexCompilingRepository
 {
-    LatexProject SaveProjectFromZip(long userId, Stream zipStream);
+    Task<LatexProject> SaveProjectFromTemplateAsync(long userId, CancellationToken token);
+    
+    Task<LatexProject> SaveProjectFromZipAsync(long userId, Stream zipStream, CancellationToken token);
     
     Task<string> GetMainTexContentAsync(LatexProject project, CancellationToken token);
     

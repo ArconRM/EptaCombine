@@ -53,15 +53,25 @@ public class LatexCompilerModel : PageModel
         _latexCompilerService.SelectActiveProject(projectRequest.ProjectUuid, HttpContext.Session);
         return new JsonResult(new { success = true });
     }
+    
+    public async Task<IActionResult> OnPostCreateProjectFromTemplateAsync(CancellationToken token)
+    {
+        var userId = await GetCurrentUserIdAsync();
+        if (userId is null)
+            return Unauthorized();
 
-    public async Task<IActionResult> OnPostUploadAsync([FromForm] IFormFile zipFile, CancellationToken token)
+        await _latexCompilerService.CreateProjectFromTemplateAsync(userId.Value, HttpContext.Session, token);
+        return new JsonResult(new { success = true });
+    }
+
+    public async Task<IActionResult> OnPostCreateProjectFromZipAsync([FromForm] IFormFile zipFile, CancellationToken token)
     {
         var userId = await GetCurrentUserIdAsync();
         if (userId is null)
             return Unauthorized();
 
         await using var stream = zipFile.OpenReadStream();
-        await _latexCompilerService.UploadAsync(userId.Value, stream, HttpContext.Session, token);
+        await _latexCompilerService.CreateProjectFromZipAsync(userId.Value, stream, HttpContext.Session, token);
         return new JsonResult(new { success = true });
     }
 

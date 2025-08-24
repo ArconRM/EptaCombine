@@ -13,7 +13,8 @@
 <div id="latexCompilerContainer" class="d-flex flex-column min-vh-100 mb-3"
      data-user-projects-url="@Url.Page("./LatexCompiler", "UserProjects")"
      data-select-project-url="@Url.Page("./LatexCompiler", "SelectActiveProject")"
-     data-upload-url="@Url.Page("./LatexCompiler", "Upload")"
+     data-create-project-from-template-url="@Url.Page("./LatexCompiler", "CreateProjectFromTemplate")"
+     data-create-project-from-zip-url="@Url.Page("./LatexCompiler", "CreateProjectFromZip")"
      data-get-main-tex-url="@Url.Page("./LatexCompiler", "MainTex")"
      data-get-main-bib-url="@Url.Page("./LatexCompiler", "MainBib")"
      data-save-project-url="@Url.Page("./LatexCompiler", "SaveProject")"
@@ -30,7 +31,7 @@
             <div id="userProjectsList" class="list-group mb-3">
                 <!-- JS will fill this -->
             </div>
-            <button class="btn btn-outline-primary btn-sm" id="showUploadBtn">📦 Загрузить новый ZIP</button>
+            <button class="btn btn-outline-primary btn-sm" id="showUploadBtn">📦 Создать новый проект</button>
         </div>
 
         <div id="editorSection" class="d-none">
@@ -41,6 +42,8 @@
                     <input type="file" class="form-control" id="zipFile" accept=".zip"/>
                     <button id="deleteZipBtn" class="btn btn-outline-secondary btn-sm">🗑️</button>
                 </div>
+                <label for="zipFile" class="form-label fw-semibold">или</label>
+                <button class="btn btn-outline-primary btn-sm" id="templateButton">Создать проект из шаблона СГУ</button>
             </div>
 
             <!-- Editor & Viewer - Fixed Height Container -->

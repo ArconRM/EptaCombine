@@ -12,64 +12,78 @@ namespace LatexCompiler.Repository;
 public class LatexCompilingRepository : ILatexCompilingRepository
 {
     private readonly string _root;
+    private readonly string _templateUrl;
 
     private readonly ILogger<LatexCompilingRepository> _logger;
 
     public LatexCompilingRepository(IOptions<CompilerSettings> options, ILogger<LatexCompilingRepository> logger)
     {
         _root = options.Value.DataDirectory;
+        _templateUrl = options.Value.TemplateUrl;
         _logger = logger;
     }
 
-    public LatexProject SaveProjectFromZip(long userId, Stream zipStream)
+    public async Task<LatexProject> SaveProjectFromTemplateAsync(long userId, CancellationToken token)
     {
-        var project = new LatexProject
-        {
-            Uuid = Guid.NewGuid(),
-            UserId = userId
-        };
+        using HttpClient client = new HttpClient();
+        await using Stream zipStream = await client.GetStreamAsync(_templateUrl, token);
+        return await SaveProjectFromZipAsync(userId, zipStream, token);
+    }
 
-        var tempDir = Path.Combine(_root, project.Uuid.ToString());
-        Directory.CreateDirectory(tempDir);
-
-        try
+    public async Task<LatexProject> SaveProjectFromZipAsync(long userId, Stream zipStream, CancellationToken token)
+    {
+        return await Task.Run(() =>
         {
-            using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: true))
+            var project = new LatexProject
             {
-                archive.ExtractToDirectory(tempDir);
+                Uuid = Guid.NewGuid(),
+                UserId = userId
+            };
+
+            var tempDir = Path.Combine(_root, project.Uuid.ToString());
+            Directory.CreateDirectory(tempDir);
+
+            try
+            {
+                using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Read, leaveOpen: true))
+                {
+                    archive.ExtractToDirectory(tempDir);
+                }
+
+                var macosDir = Path.Combine(tempDir, "__MACOSX");
+                if (Directory.Exists(macosDir))
+                    Directory.Delete(macosDir, true);
+
+                var texFiles = Directory.GetFiles(tempDir, "*.tex", SearchOption.AllDirectories);
+                if (!texFiles.Any())
+                    throw new InvalidOperationException("No .tex files found in archive");
+
+                var mainTexFile = texFiles.FirstOrDefault(f =>
+                    Path.GetFileName(f).Equals("main.tex", StringComparison.OrdinalIgnoreCase)) ?? texFiles.First();
+                var mainTexName = Path.GetFileName(mainTexFile);
+
+                var workDir = Path.GetDirectoryName(mainTexFile);
+
+                var bibFiles = Directory.GetFiles(workDir, "*.bib", SearchOption.AllDirectories);
+                if (!bibFiles.Any())
+                    throw new InvalidOperationException("No bib files found in archive");
+
+                var mainBibName = Path.GetFileName(bibFiles.FirstOrDefault(f =>
+                    Path.GetFileName(f).Equals("thesis.bib", StringComparison.OrdinalIgnoreCase)) ?? bibFiles.First());
+
+                project.ProjectDirectory = workDir;
+                project.MainTexName = mainTexName;
+                project.MainBibName = mainBibName;
+
+                return project;
             }
-
-            var macosDir = Path.Combine(tempDir, "__MACOSX");
-            if (Directory.Exists(macosDir))
-                Directory.Delete(macosDir, true);
-
-            var texFiles = Directory.GetFiles(tempDir, "*.tex", SearchOption.AllDirectories);
-            if (!texFiles.Any())
-                throw new InvalidOperationException("No .tex files found in archive");
-            var mainTexFile = texFiles.FirstOrDefault(f =>
-                Path.GetFileName(f).Equals("main.tex", StringComparison.OrdinalIgnoreCase)) ?? texFiles.First();
-            var mainTexName = Path.GetFileName(mainTexFile);
-
-            var workDir = Path.GetDirectoryName(mainTexFile);
-
-            var bibFiles = Directory.GetFiles(workDir, "*.bib", SearchOption.AllDirectories);
-            if (!bibFiles.Any())
-                throw new InvalidOperationException("No bib files found in archive");
-            var mainBibName = Path.GetFileName(bibFiles.FirstOrDefault(f =>
-                Path.GetFileName(f).Equals("thesis.bib", StringComparison.OrdinalIgnoreCase)) ?? bibFiles.First());
-
-            project.ProjectDirectory = workDir;
-            project.MainTexName = mainTexName;
-            project.MainBibName = mainBibName;
-
-            return project;
-        }
-        catch
-        {
-            if (Directory.Exists(tempDir))
-                Directory.Delete(tempDir, true);
-            throw;
-        }
+            catch
+            {
+                if (Directory.Exists(tempDir))
+                    Directory.Delete(tempDir, true);
+                throw;
+            }
+        }, token);
     }
 
     public async Task<string> GetMainTexContentAsync(LatexProject project, CancellationToken token)

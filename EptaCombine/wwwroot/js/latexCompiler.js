@@ -7,6 +7,7 @@ const userProjectsList = document.getElementById("userProjectsList");
 const showUploadBtn = document.getElementById("showUploadBtn");
 
 const zipFileInput = document.getElementById('zipFile');
+const templateButton = document.getElementById('templateButton');
 const saveBtn = document.getElementById('saveBtn');
 const compileBtn = document.getElementById('compileBtn');
 const togglePdfBtn = document.getElementById("togglePdfBtn");
@@ -22,7 +23,8 @@ const editorColumn = document.getElementById("editorColumn");
 const container = document.getElementById('latexCompilerContainer');
 const urls = {
     userProjects: container.dataset.userProjectsUrl,
-    upload: container.dataset.uploadUrl,
+    createProjectFromTemplate: container.dataset.createProjectFromTemplateUrl,
+    createProjectFromZip: container.dataset.createProjectFromZipUrl,
     getMainTex: container.dataset.getMainTexUrl,
     getMainBib: container.dataset.getMainBibUrl,
     saveProject: container.dataset.saveProjectUrl,
@@ -184,13 +186,46 @@ showUploadBtn.addEventListener("click", () => {
     editorSection.classList.remove("d-none");
 });
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async function () {
     const toastBox = document.getElementById('toastBox');
     if (toastBox) {
         window.bootstrapToast = new bootstrap.Toast(toastBox);
     }
 
-    fetchAndShowUserProjects();
+    await fetchAndShowUserProjects();
+});
+
+templateButton.addEventListener('click', async function () {
+    setUIBusy("Загрузка шаблона...");
+
+    try {
+        const res = await fetch(urls.createProjectFromTemplate, {
+            method: "POST",
+            headers: {
+                "RequestVerificationToken": token
+            }
+        });
+
+        if (!res.ok) {
+            const error = await res.text();
+            console.error("Error from backend:", error);
+            showToast(`Ошибка загрузки`, false);
+            return;
+        }
+
+        const result = await res.json();
+        if (result.success) {
+            showToast('Шаблон успешно загружен');
+            await loadMainTexContent();
+            await loadMainBibContent();
+        }
+    } catch (err) {
+        console.error("JS exception:", err);
+        showToast(`Ошибка загрузки`, false);
+    } finally {
+        clearUIBusy();
+        setZipControlsEnabled(false);
+    }
 });
 
 zipFileInput.addEventListener('change', async function () {
@@ -202,7 +237,7 @@ zipFileInput.addEventListener('change', async function () {
     formData.append("zipFile", file);
 
     try {
-        const res = await fetch(urls.upload, {
+        const res = await fetch(urls.createProjectFromZip, {
             method: "POST",
             headers: {
                 "RequestVerificationToken": token

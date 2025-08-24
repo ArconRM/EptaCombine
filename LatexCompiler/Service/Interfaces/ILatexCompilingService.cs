@@ -7,7 +7,9 @@ public interface ILatexCompilingService
 {
     Task<IEnumerable<LatexProject>> GetUserProjectsAsync(long userId, CancellationToken token);
     
-    Task<LatexProject> UploadAsync(long userId, Stream zipStream, CancellationToken token);
+    Task<LatexProject> CreateProjectFromTemplateAsync(long userId, CancellationToken token);
+    
+    Task<LatexProject> CreateProjectFromZipAsync(long userId, Stream zipStream, CancellationToken token);
     
     Task<string> GetMainTexContentAsync(Guid projectUuid, CancellationToken token);
     

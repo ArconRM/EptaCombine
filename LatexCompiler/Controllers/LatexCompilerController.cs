@@ -38,9 +38,25 @@ public class LatexCompilerController : ControllerBase
             return StatusCode(500, "Internal server error during fetching.");
         }
     }
+    
+    [HttpPost(nameof(CreateProjectFromTemplate))]
+    public async Task<IActionResult> CreateProjectFromTemplate([FromForm] long userId, CancellationToken token)
+    {
+        try
+        {
+            LatexProject project = await _latexService.CreateProjectFromTemplateAsync(userId, token);
+            LatexProjectDTO projectDTO = _mapper.Map<LatexProjectDTO>(project);
+            return Ok(projectDTO);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Upload failed.");
+            return StatusCode(500, "Internal server error during upload.");
+        }
+    }
 
-    [HttpPost(nameof(Upload))]
-    public async Task<IActionResult> Upload([FromForm] long userId, [FromForm] IFormFile zipFile, CancellationToken token)
+    [HttpPost(nameof(CreateProjectFromZip))]
+    public async Task<IActionResult> CreateProjectFromZip([FromForm] long userId, [FromForm] IFormFile zipFile, CancellationToken token)
     {
         try
         {
@@ -49,7 +65,7 @@ public class LatexCompilerController : ControllerBase
 
             using var zipStream = zipFile.OpenReadStream();
 
-            LatexProject project = await _latexService.UploadAsync(userId, zipStream, token);
+            LatexProject project = await _latexService.CreateProjectFromZipAsync(userId, zipStream, token);
             LatexProjectDTO projectDTO = _mapper.Map<LatexProjectDTO>(project);
             return Ok(projectDTO);
         }

@@ -37,7 +37,34 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
         session.SetString(SessionKey, projectUuid.ToString());
     }
 
-    public async Task<LatexProjectDTO> UploadAsync(long userId, Stream zipStream, ISession session,
+
+    public async Task<LatexProjectDTO> CreateProjectFromTemplateAsync(
+        long userId,
+        ISession session,
+        CancellationToken token)
+    {
+        using var content = new MultipartFormDataContent();
+
+        content.Add(new StringContent(userId.ToString()), "userId");
+
+        var response = await _httpClient.PostAsync("api/LatexCompiler/CreateProjectFromTemplate", content, token);
+        await EnsureSuccessStatusCode(response, token);
+
+        var project = await response.Content.ReadFromJsonAsync<LatexProjectDTO>(_jsonSerializerOptions, token);
+        if (project is null)
+        {
+            throw new InvalidOperationException("Failed to deserialize project from API response.");
+        }
+        
+        SelectActiveProject(project.Uuid, session);
+
+        return project;
+    }
+
+    public async Task<LatexProjectDTO> CreateProjectFromZipAsync(
+        long userId,
+        Stream zipStream,
+        ISession session,
         CancellationToken token)
     {
         using var content = new MultipartFormDataContent();
@@ -48,7 +75,7 @@ public class LatexCompilingHttpService : ILatexCompilingHttpService
         streamContent.Headers.ContentType = new MediaTypeHeaderValue("application/zip");
         content.Add(streamContent, "zipFile", "project.zip");
 
-        var response = await _httpClient.PostAsync("api/LatexCompiler/Upload", content, token);
+        var response = await _httpClient.PostAsync("api/LatexCompiler/CreateProjectFromZip", content, token);
         await EnsureSuccessStatusCode(response, token);
 
         var project = await response.Content.ReadFromJsonAsync<LatexProjectDTO>(_jsonSerializerOptions, token);

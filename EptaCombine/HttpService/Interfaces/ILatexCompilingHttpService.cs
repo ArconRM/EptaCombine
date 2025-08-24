@@ -8,7 +8,9 @@ public interface ILatexCompilingHttpService
 
     void SelectActiveProject(Guid projectUuid, ISession session);
 
-    Task<LatexProjectDTO> UploadAsync(long userId, Stream zipStream, ISession session, CancellationToken token);
+    Task<LatexProjectDTO> CreateProjectFromTemplateAsync(long userId, ISession session, CancellationToken token);
+    
+    Task<LatexProjectDTO> CreateProjectFromZipAsync(long userId, Stream zipStream, ISession session, CancellationToken token);
 
     Task<string> GetMainTexContentAsync(ISession session, CancellationToken token);
 
