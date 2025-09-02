@@ -155,7 +155,6 @@ userProjectsList.addEventListener('click', async (e) => {
     }
 
     try {
-        console.log(uuid)
         const res = await fetch(urls.selectProject, {
             method: "POST",
             headers: {

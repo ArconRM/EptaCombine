@@ -89,17 +89,12 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
         showToast("Пароли не совпадают", false);
         return;
     }
-    
-    console.log(password);
-    console.log(confirmPassword);
 
     const formData = {
         Username: this.querySelector('[name="Username"]').value,
         Email: this.querySelector('[name="Email"]').value,
         Password: password
     };
-    
-    console.log(formData);
 
     const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
