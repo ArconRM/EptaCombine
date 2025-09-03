@@ -32,6 +32,21 @@ services:
       - db
     volumes:
       - latexcompiler_data:/var/lib/latexcompiler
+      - 
+  
+  coderunner:
+    build:
+      context: .
+      dockerfile: CodeRunner/Dockerfile
+    ports:
+      - "5103:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          memory: 512M
   
   db:
     image: postgres:16
