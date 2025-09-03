@@ -14,7 +14,7 @@ COPY ["Core/", "Core/"]
 
 RUN dotnet publish "EptaCombine/EptaCombine.csproj" -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "EptaCombine.dll"]
