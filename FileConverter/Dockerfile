@@ -1,4 +1,10 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS ffmpeg-install
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["EptaCombine.sln", "."]
@@ -14,11 +20,7 @@ COPY ["Core/", "Core/"]
 
 RUN dotnet publish "FileConverter/FileConverter.csproj" -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+FROM ffmpeg-install AS final
 
 WORKDIR /app
 COPY --from=build /app/publish .

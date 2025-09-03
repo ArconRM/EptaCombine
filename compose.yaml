@@ -6,7 +6,6 @@ services:
     ports:
       - "5100:8080"
     depends_on:
-      - fileconverter
       - db
     volumes:
       - aspnet-data:/usr/share/aspnet/DataProtection-Keys
