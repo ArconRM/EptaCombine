@@ -32,7 +32,6 @@ services:
       - db
     volumes:
       - latexcompiler_data:/var/lib/latexcompiler
-      - 
   
   coderunner:
     build:
