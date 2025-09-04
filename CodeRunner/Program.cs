@@ -2,6 +2,7 @@ using CodeRunner.Repository;
 using CodeRunner.Repository.Interfaces;
 using CodeRunner.Service;
 using CodeRunner.Service.Interfaces;
+using Common.Entities.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<ICSharpCodeRunnerRepository, CSharpCodeRunnerRepository>();
+builder.Services.AddKeyedScoped<ICodeRunnerRepository, CSharpCodeRunnerRepository>(ProgramLanguage.CSharp);
 builder.Services.AddScoped<ICodeRunnerService, CodeRunnerService>();
 
 var app = builder.Build();

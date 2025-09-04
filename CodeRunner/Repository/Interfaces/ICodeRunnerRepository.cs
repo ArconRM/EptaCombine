@@ -2,7 +2,7 @@
 
 namespace CodeRunner.Repository.Interfaces;
 
-public interface ICSharpCodeRunnerRepository
+public interface ICodeRunnerRepository
 {
     Task<CodeExecutionResult> RunCodeAsync(string code, CancellationToken token);
 }

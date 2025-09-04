@@ -7,25 +7,16 @@ namespace CodeRunner.Service;
 
 public class CodeRunnerService : ICodeRunnerService
 {
-    private readonly ICSharpCodeRunnerRepository _cSharpCodeRunnerRepository;
+    private readonly IServiceProvider _serviceProvider;
 
-    public CodeRunnerService(ICSharpCodeRunnerRepository cSharpCodeRunnerRepository)
+    public CodeRunnerService(IServiceProvider serviceProvider)
     {
-        _cSharpCodeRunnerRepository = cSharpCodeRunnerRepository;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task<CodeExecutionResult> RunCodeAsync(string code, ProgramLanguage language, CancellationToken token)
     {
-        switch (language)
-        {
-            case ProgramLanguage.CSharp:
-                return await _cSharpCodeRunnerRepository.RunCodeAsync(code, token);
-
-            case ProgramLanguage.Python:
-                throw new NotImplementedException();
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(language), language, null);
-        }
+        var runner = _serviceProvider.GetRequiredKeyedService<ICodeRunnerRepository>(language);
+        return await runner.RunCodeAsync(code, token);
     }
 }
