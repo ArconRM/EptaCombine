@@ -13,6 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddKeyedScoped<ICodeRunnerRepository, CSharpCodeRunnerRepository>(ProgramLanguage.CSharp);
+builder.Services.AddKeyedScoped<ICodeRunnerRepository, PythonCodeRunnerRepository>(ProgramLanguage.Python);
 builder.Services.AddScoped<ICodeRunnerService, CodeRunnerService>();
 
 var app = builder.Build();
