@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LatexCompiler", "LatexCompi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{E63E70B6-06EC-4220-AAFB-BC3BAC7D74FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeRunner", "CodeRunner\CodeRunner.csproj", "{B9B5ADCF-D207-400D-8C0F-E79957B5C30C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +43,9 @@ Global
 		{E63E70B6-06EC-4220-AAFB-BC3BAC7D74FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E63E70B6-06EC-4220-AAFB-BC3BAC7D74FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E63E70B6-06EC-4220-AAFB-BC3BAC7D74FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9B5ADCF-D207-400D-8C0F-E79957B5C30C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9B5ADCF-D207-400D-8C0F-E79957B5C30C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9B5ADCF-D207-400D-8C0F-E79957B5C30C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9B5ADCF-D207-400D-8C0F-E79957B5C30C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

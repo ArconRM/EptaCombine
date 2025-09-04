@@ -1,0 +1,116 @@
+﻿@page
+@model EptaCombine.Pages.CodeRunnerModel
+@{
+    ViewData["Title"] = "Code Runner";
+}
+@Html.AntiForgeryToken()
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@latest/min/vs/loader.js"></script>
+<link rel="stylesheet" href="css/codeRunner.css?v=@DateTime.Now.Ticks"/>
+
+<div id="codeRunnerContainer" class="d-flex flex-column min-vh-100 mb-3"
+     data-run-code-url="@Url.Page("./CodeRunner", "RunCode")">
+
+    <div>
+        <h2 class="text-center mb-4 fw-bold">💻 Code Runner</h2>
+
+        <!-- Language Selector -->
+        <div class="card shadow-sm mb-4 p-4 hover-zoom">
+            <h5 class="mb-3 fw-semibold">🔧 Выберите язык программирования:</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <select class="form-select" id="languageSelect">
+                        @foreach (var lang in Model.LanguageOptions)
+                        {
+                            <option value="@lang.Value" selected="@lang.Selected">@lang.Text</option>
+                        }
+                    </select>
+
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                        <button id="runBtn" class="btn btn-success btn-lg flex-fill hover-zoom">
+                            ▶️ Запустить код
+                        </button>
+                        <button id="clearBtn" class="btn btn-outline-secondary hover-zoom">
+                            🗑️ Очистить
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor & Output Container -->
+        <div class="row" style="min-height: 700px;">
+            <!-- Code Editor -->
+            <div class="col-12 mb-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">📝 Редактор кода</span>
+                        <small class="text-muted" id="editorLanguage">Python</small>
+                    </div>
+                    <div class="card-body p-0" style="height: 400px;">
+                        <div id="codeEditor" class="h-100 w-100"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Window -->
+            <div class="col-12">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">📤 Вывод программы</span>
+                        <div class="d-flex gap-2">
+                            <span id="executionTime" class="badge bg-info text-dark d-none"></span>
+                            <button id="clearOutputBtn" class="btn btn-outline-secondary btn-sm">
+                                Очистить вывод
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="height: 280px; overflow-y: auto;">
+                        <pre id="outputContent" class="mb-0 text-wrap">Нажмите "Запустить код" чтобы увидеть результат выполнения...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div id="toastBox" class="toast align-items-center text-white bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">✅ Код успешно выполнен</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none"
+     style="z-index: 1050; background-color: rgba(0, 0, 0, 0.5);">
+    <!-- Video Background -->
+    <video
+        id="overlay-video"
+        class="overlay-video"
+        autoplay
+        muted
+        playsinline
+        loop
+    >
+        <source src="/media/bobek.mp4" type="video/mp4">
+    </video>
+
+    <!-- Spinner & Message -->
+    <div class="d-flex justify-content-center align-items-center h-100 position-relative">
+        <div class="text-white text-center">
+            <div class="spinner-border text-light mb-3" role="status"></div>
+            <div id="overlayMessage" class="fs-5 fw-semibold">Выполняется код...</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/codeRunner.js?v=@DateTime.Now.Ticks"></script>
+}

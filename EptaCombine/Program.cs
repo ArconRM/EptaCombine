@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 var servicesConfig = builder.Configuration.GetSection("Services");
 var fileConverterUrl = servicesConfig["FileConverter"];
 var latexCompilerUrl = servicesConfig["LatexCompiler"];
+var codeRunnerUrl = servicesConfig["CodeRunner"];
 
 var maxFileSize = builder.Configuration
     .GetSection("FileUpload")
@@ -80,6 +81,12 @@ builder.Services.AddHttpClient<IFileConversionHttpService, FileConversionHttpSer
 builder.Services.AddHttpClient<ILatexCompilingHttpService, LatexCompilingHttpService>(client =>
 {
     client.BaseAddress = new Uri(latexCompilerUrl);
+    client.Timeout = TimeSpan.FromMinutes(10);
+});
+
+builder.Services.AddHttpClient<ICodeRunnerHttpsService, CodeRunnerHttpsService>(client =>
+{
+    client.BaseAddress = new Uri(codeRunnerUrl);
     client.Timeout = TimeSpan.FromMinutes(10);
 });
 
