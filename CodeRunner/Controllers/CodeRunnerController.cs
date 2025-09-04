@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CodeRunner.Service.Interfaces;
+using Common.DTO;
 using Common.Entities.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,12 +22,12 @@ public class CodeRunnerController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet(nameof(RunCode))]
-    public async Task<IActionResult> RunCode(string code, ProgramLanguage language, CancellationToken token)
+    [HttpPost(nameof(RunCode))]
+    public async Task<IActionResult> RunCode([FromBody] CodeExecutionRequest request, CancellationToken token)
     {
         try
         {
-            var result = await _service.RunCodeAsync(code, language, token);
+            var result = await _service.RunCodeAsync(request.Code, request.ProgramLanguage, token);
             return Ok(result);
         }
         catch (Exception ex)
