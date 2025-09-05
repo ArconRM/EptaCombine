@@ -2,7 +2,7 @@
 
 public class CSharpLanguageConfig : LanguageConfig
 {
-    public override string FileExtension => ".cs";
+   public override string FileExtension => ".cs";
     public override string MainFileName => "Program.cs";
 
     public override async Task<ProcessExecutionStep[]> GetExecutionStepsAsync(string tempDir, string codeFilePath)

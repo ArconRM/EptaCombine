@@ -22,7 +22,7 @@ const token = document.querySelector('input[name="__RequestVerificationToken"]')
 const languageMap = {
     'CSharp': 'csharp',
     'Python': 'python',
-    'javascript': 'javascript',
+    'JavaScript': 'javascript',
     'java': 'java',
     'cpp': 'cpp',
     'c': 'c',
@@ -34,7 +34,8 @@ const languageMap = {
 
 const ProgramLanguage = {
     "CSharp": 0,
-    "Python": 1
+    "Python": 1,
+    "JavaScript": 2
 };
 
 // Default code templates
