@@ -11,7 +11,7 @@ public class PythonLanguageConfig : LanguageConfig
         [
             new ProcessExecutionStep
             {
-                FileName = "python",
+                FileName = "python3",
                 Arguments = $"\"{codeFilePath}\""
             }
         ];
