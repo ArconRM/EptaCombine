@@ -24,7 +24,7 @@ const languageMap = {
     'Python': 'python',
     'JavaScript': 'javascript',
     'java': 'java',
-    'cpp': 'cpp',
+    'Cpp': 'cpp',
     'c': 'c',
     'go': 'go',
     'rust': 'rust',
@@ -35,7 +35,8 @@ const languageMap = {
 const ProgramLanguage = {
     "CSharp": 0,
     "Python": 1,
-    "JavaScript": 2
+    "JavaScript": 2,
+    "Cpp": 3,
 };
 
 // Default code templates

@@ -15,6 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddKeyedScoped<ICodeRunnerRepository, CSharpCodeRunnerRepository>(ProgramLanguage.CSharp);
 builder.Services.AddKeyedScoped<ICodeRunnerRepository, PythonCodeRunnerRepository>(ProgramLanguage.Python);
 builder.Services.AddKeyedScoped<ICodeRunnerRepository, JSCodeRunnerRepository>(ProgramLanguage.JavaScript);
+builder.Services.AddKeyedScoped<ICodeRunnerRepository, CppCodeRunnerRepository>(ProgramLanguage.Cpp);
 builder.Services.AddScoped<ICodeRunnerService, CodeRunnerService>();
 
 var app = builder.Build();

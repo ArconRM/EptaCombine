@@ -4,5 +4,6 @@ public enum ProgramLanguage
 {
     CSharp,
     Python,
-    JavaScript
+    JavaScript,
+    Cpp
 }
