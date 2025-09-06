@@ -10,8 +10,5 @@ public class CSharpCodeRunnerRepository : BaseCodeRunnerRepository
 {
     public CSharpCodeRunnerRepository(ILogger<BaseCodeRunnerRepository> logger) : base(logger) { }
 
-    protected override LanguageConfig GetLanguageConfig()
-    {
-        return new CSharpLanguageConfig();
-    }
+    protected override LanguageConfig GetLanguageConfig() => new CSharpLanguageConfig();
 }

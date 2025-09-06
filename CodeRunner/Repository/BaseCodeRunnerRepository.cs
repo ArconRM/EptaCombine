@@ -28,10 +28,10 @@ public abstract class BaseCodeRunnerRepository : ICodeRunnerRepository
             var config = GetLanguageConfig();
             var result = new List<string>();
 
-            string codeFilePath = Path.Combine(tempDir, config.MainFileName);
+            var codeFilePath = Path.Combine(tempDir, config.MainFileName);
 
-            var executionSteps = await config.GetExecutionStepsAsync(tempDir, codeFilePath);
-            bool didWriteToFile = false;
+            var executionSteps = await config.GetExecutionStepsAsync(tempDir);
+            var didWriteToFile = false;
 
             foreach (var step in executionSteps)
             {
@@ -102,7 +102,7 @@ public abstract class BaseCodeRunnerRepository : ICodeRunnerRepository
         return new ProcessExecutionResult
         {
             IsSuccess = process.ExitCode == 0,
-            Output = process.ExitCode == 0 ? output : error,
+            Output = process.ExitCode == 0 ? output : string.Join("\n", [output, error]),
             ExitCode = process.ExitCode
         };
     }

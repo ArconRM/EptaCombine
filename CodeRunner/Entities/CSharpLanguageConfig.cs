@@ -3,9 +3,9 @@
 public class CSharpLanguageConfig : LanguageConfig
 {
    public override string FileExtension => ".cs";
-    public override string MainFileName => "Program.cs";
+    public override string MainFileName => $"Program{FileExtension}";
 
-    public override async Task<ProcessExecutionStep[]> GetExecutionStepsAsync(string tempDir, string codeFilePath)
+    public override async Task<ProcessExecutionStep[]> GetExecutionStepsAsync(string tempDir)
     {
         string projectPath = Path.Combine(tempDir, "Runner.csproj");
         

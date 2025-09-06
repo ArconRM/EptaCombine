@@ -7,8 +7,5 @@ public class PythonCodeRunnerRepository: BaseCodeRunnerRepository
 
     public PythonCodeRunnerRepository(ILogger<BaseCodeRunnerRepository> logger) : base(logger) { }
     
-    protected override LanguageConfig GetLanguageConfig()
-    {
-        return new PythonLanguageConfig();
-    }
+    protected override LanguageConfig GetLanguageConfig() => new PythonLanguageConfig();
 }

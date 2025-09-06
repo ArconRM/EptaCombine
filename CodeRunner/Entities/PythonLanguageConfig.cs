@@ -3,10 +3,12 @@
 public class PythonLanguageConfig : LanguageConfig
 {
     public override string FileExtension => ".py";
-    public override string MainFileName => "main.py";
+    public override string MainFileName => $"main{FileExtension}";
 
-    public override async Task<ProcessExecutionStep[]> GetExecutionStepsAsync(string tempDir, string codeFilePath)
+    public override async Task<ProcessExecutionStep[]> GetExecutionStepsAsync(string tempDir)
     {
+        var codeFilePath = Path.Combine(tempDir, MainFileName);
+        
         return
         [
             new ProcessExecutionStep

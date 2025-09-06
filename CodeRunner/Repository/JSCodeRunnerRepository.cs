@@ -10,8 +10,5 @@ public class JSCodeRunnerRepository : BaseCodeRunnerRepository
 {
     public JSCodeRunnerRepository(ILogger<BaseCodeRunnerRepository> logger) : base(logger) { }
 
-    protected override LanguageConfig GetLanguageConfig()
-    {
-        return new JSLanguageConfig();
-    }
+    protected override LanguageConfig GetLanguageConfig() => new JSLanguageConfig();
 }
